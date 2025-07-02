@@ -1,0 +1,84 @@
+{
+  "name": "Liturgia Diária Católica",
+  "short_name": "Liturgia Diária",
+  "description": "Liturgia católica diária com leituras, evangelho, salmos e orações",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "categories": ["religion", "lifestyle", "education"],
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/liturgia-icon.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/liturgia-icon.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/liturgia-icon.webp",
+      "sizes": "180x180",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/liturgia-icon.webp",
+      "sizes": "144x144",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/liturgia-icon.webp",
+      "sizes": "96x96",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/liturgia-icon.webp",
+      "sizes": "72x72",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/liturgia-icon.webp",
+      "sizes": "48x48",
+      "type": "image/webp",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Liturgia de Hoje",
+      "short_name": "Hoje",
+      "description": "Ver liturgia de hoje",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/liturgia-icon.webp",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/liturgia-icon.webp",
+      "sizes": "1280x720",
+      "type": "image/webp",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/liturgia-icon.webp",
+      "sizes": "750x1334",
+      "type": "image/webp",
+      "form_factor": "narrow"
+    }
+  ]
+}

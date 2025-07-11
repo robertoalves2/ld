@@ -65,16 +65,17 @@
   </footer>
 
   <script>
-    fetch("backend.php")
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("subtitulo").textContent = data.titulo;
-        document.getElementById("evangelho").innerHTML = data.evangelho;
-      })
-      .catch(() => {
-        document.getElementById("evangelho").innerText = "Erro ao carregar o conteúdo.";
-        document.getElementById("subtitulo").innerText = "";
-      });
+    const data = {
+      titulo: "Lectio Divina de Hoje",
+      evangelho: `
+        <p><strong>Evangelho:</strong> João 3,16-21</p>
+        <p>Deus amou tanto o mundo que entregou o seu Filho único...</p>
+        <p>[Conteúdo completo do evangelho aqui]</p>
+      `
+    };
+
+    document.getElementById("subtitulo").textContent = data.titulo;
+    document.getElementById("evangelho").innerHTML = data.evangelho;
   </script>
 
 </body>

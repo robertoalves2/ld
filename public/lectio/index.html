@@ -59,34 +59,29 @@
         const xml = parser.parseFromString(feedText, "application/xml");
         const items = [...xml.querySelectorAll("item")];
 
+        const hoje = new Date();
+        const timezoneOffset = 3 * 60 * 60 * 1000; // -03:00 em ms
+
         let artigoEscolhido = null;
 
-        // Tenta pegar o post mais adequado (sem sabado/domingo)
         for (const item of items) {
-          const title = item.querySelector("title")?.textContent.toLowerCase();
-          if (
-            title.includes("evangelho") ||
-            title.includes("semana") ||
-            title.includes("segunda") ||
-            title.includes("terça") ||
-            title.includes("quarta") ||
-            title.includes("quinta") ||
-            title.includes("sexta")
-          ) {
-            artigoEscolhido = {
-              title: item.querySelector("title").textContent,
-              link: item.querySelector("link").textContent
-            };
+          const title = item.querySelector("title")?.textContent || "";
+          const link = item.querySelector("link")?.textContent || "";
+          const pubDateText = item.querySelector("pubDate")?.textContent || "";
+
+          const pubDate = new Date(pubDateText);
+          const pubDateLocal = new Date(pubDate.getTime() - timezoneOffset);
+
+          if (pubDateLocal <= hoje) {
+            artigoEscolhido = { title, link };
             break;
           }
         }
 
-        if (!artigoEscolhido) throw new Error("Nenhum post adequado encontrado.");
+        if (!artigoEscolhido) throw new Error("Nenhum post válido encontrado.");
 
-        // Atualiza o título da página
         document.getElementById("titulo").textContent = artigoEscolhido.title;
 
-        // Carrega o HTML do post
         const postRes = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(artigoEscolhido.link));
         const postData = await postRes.json();
         const postHtml = postData.contents;

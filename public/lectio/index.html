@@ -5,7 +5,7 @@
   <meta name="description" content="Liturgia Diária com o Evangelho do Dia comentado. Lectio Divina, Evangelho de hoje e a Liturgia comentada. Ideal para orações diárias e reflexão católica.">
   <meta name="keywords" content="liturgia diária, liturgia da diária, evangelho do dia, evangelho de hoje, liturgia de hoje, evangelho dia, evangelho, lectio divina, evangelho do dia de hoje, o evangelho de hoje, liturgia diaria hoje, liturgia diária hoje, liturgia diaria de hoje, divina lectio, divino lectio, evangelho de hoje do dia, evangelho dia de hoje, liturgia do dia de hoje, evangelho do dia comentado, liturgia diária comentada de hoje, evangelho no lar, liturgia do ordinário, liturgia diaria comentada, o evangelho do dia, lectio divina de hoje, evangelho hoje, evangelho do lar">
   <meta name="author" content="Liturgia Diária">
-  <title>Evangelho do Dia e Lectio Divina - Liturgia Diária</title>
+  <title>Liturgia Diária - Evangelho do Dia e Lectio Divina</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
@@ -58,15 +58,39 @@
   </style>
   <link rel="canonical" href="https://liturgiadiaria.top/" />
   <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+<script defer data-domain="liturgiadiaria.top" src="https://plausible.io/js/plausible.js"></script>
 </head>
 <body>
-  <h1 id="titulo">Carregando...</h1>
+  <h1 id="titulo">Carregando título...</h1>
 
   <div id="nav-botoes">
 <button onclick="navegar(1)" id="proximo">&larr; Dia anterior</button>
   </div>
 
-  <div id="evangelho">Carregando...</div>
+  <div id="evangelho">Carregando evangelho...</div>
+
+  <div style="margin-top: 1em; text-align: center">
+    <button onclick="compartilhar()" style="background:#25d366;color:#fff;border:none;padding:10px 20px;border-radius:5px;font-weight:bold;cursor:pointer">
+      📤 Compartilhar conteúdo
+    </button>
+  </div>
+
+  <div style="margin-top:2em;text-align:center">
+    <p>Siga nossas redes sociais:</p>
+    <p>
+      <a href="https://link.liturgiadiaria.top/telegram-liturgiadiariachatbot" target="_blank">Telegram</a> |
+      <a href="https://link.liturgiadiaria.top/youtube-liturgiadadiaria" target="_blank">YouTube</a> |
+      <a href="https://link.liturgiadiaria.top/instagram-liturgiadadiaria" target="_blank">Instagram</a> |
+      <a href="https://link.liturgiadiaria.top/whatsapp-canal-liturgia" target="_blank">WhatsApp</a> |
+      <a href="https://link.liturgiadiaria.top/facebook-liturgiadadiaria" target="_blank">Facebook</a>
+    </p>
+  </div>
+
+  <div style="margin-top:2em;text-align:center">
+    <a href="https://ofertas.tecinova.top/" target="_blank">
+      <img src="banner_ofertas exclusivas.webp" alt="Confira ofertas exclusivas" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 0 5px rgba(0,0,0,0.1)" />
+    </a>
+  </div>
 
   <footer>
     Fonte: aliturgia.com<br>
@@ -147,5 +171,27 @@
 
     carregarFeed();
   </script>
+<script>
+function compartilhar() {
+  const titulo = document.getElementById("titulo").textContent;
+  const conteudo = document.getElementById("evangelho").innerText;
+  const texto = `${titulo}
+
+${conteudo}
+
+Fonte: liturgiadiaria.top`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: titulo,
+      text: texto,
+      url: window.location.href
+    }).catch(console.error);
+  } else {
+    navigator.clipboard.writeText(texto).then(() => alert("Conteúdo copiado para a área de transferência!"));
+  }
+}
+</script>
+
 </body>
 </html>

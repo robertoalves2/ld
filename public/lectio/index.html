@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Lectio Divina – Liturgia Diária</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f2f2f2;
+      color: #333;
+      max-width: 800px;
+      margin: auto;
+      padding: 2em;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #2c3e50;
+      font-size: 2em;
+      text-align: center;
+      margin-bottom: 0.2em;
+    }
+    h2.subtitulo {
+      text-align: center;
+      font-weight: normal;
+      color: #555;
+      margin-top: 0;
+      margin-bottom: 1.5em;
+      font-size: 1.2em;
+    }
+    #evangelho {
+      background: #fff;
+      padding: 1.5em;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    footer {
+      text-align: center;
+      font-size: 0.9em;
+      color: #888;
+      margin-top: 3em;
+      border-top: 1px solid #ddd;
+      padding-top: 1.5em;
+    }
+    footer a {
+      color: #555;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Lectio Divina</h1>
+  <h2 class="subtitulo" id="subtitulo"></h2>
+
+  <div id="evangelho">Carregando...</div>
+
+  <footer>
+    Fonte dos dados: aliturgia.com<br>
+    Desenvolvido por <a href="https://tecinova.top" target="_blank">tecinova.top</a>
+  </footer>
+
+  <script>
+    fetch("backend.php")
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("subtitulo").textContent = data.titulo;
+        document.getElementById("evangelho").innerHTML = data.evangelho;
+      })
+      .catch(() => {
+        document.getElementById("evangelho").innerText = "Erro ao carregar o conteúdo.";
+        document.getElementById("subtitulo").innerText = "";
+      });
+  </script>
+
+</body>
+</html>

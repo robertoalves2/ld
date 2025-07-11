@@ -57,38 +57,61 @@
 
         const parser = new DOMParser();
         const xml = parser.parseFromString(feedText, "application/xml");
-        const firstItem = xml.querySelector("item");
+        const items = [...xml.querySelectorAll("item")];
 
-        const postTitle = firstItem.querySelector("title").textContent;
-        const postLink = firstItem.querySelector("link").textContent;
+        let artigoEscolhido = null;
+
+        // Tenta pegar o post mais adequado (sem sabado/domingo)
+        for (const item of items) {
+          const title = item.querySelector("title")?.textContent.toLowerCase();
+          if (
+            title.includes("evangelho") ||
+            title.includes("semana") ||
+            title.includes("segunda") ||
+            title.includes("terça") ||
+            title.includes("quarta") ||
+            title.includes("quinta") ||
+            title.includes("sexta")
+          ) {
+            artigoEscolhido = {
+              title: item.querySelector("title").textContent,
+              link: item.querySelector("link").textContent
+            };
+            break;
+          }
+        }
+
+        if (!artigoEscolhido) throw new Error("Nenhum post adequado encontrado.");
 
         // Atualiza o título da página
-        document.getElementById("titulo").textContent = postTitle;
+        document.getElementById("titulo").textContent = artigoEscolhido.title;
 
-        // Agora faz o fetch do conteúdo da página do post
-        const proxiedPostUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(postLink);
-        const postRes = await fetch(proxiedPostUrl);
+        // Carrega o HTML do post
+        const postRes = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(artigoEscolhido.link));
         const postData = await postRes.json();
         const postHtml = postData.contents;
 
-        // Extrair conteúdo do artigo
         const htmlParser = new DOMParser();
         const postDoc = htmlParser.parseFromString(postHtml, "text/html");
         const article = postDoc.querySelector("article");
 
-        if (!article) throw new Error("Artigo não encontrado");
+        if (!article) throw new Error("Artigo não encontrado.");
 
-        let content = article.innerHTML;
+        let html = article.innerHTML;
 
-        // Extrair trecho a partir da palavra “Evangelho”
-        const index = content.indexOf("Evangelho");
-        if (index === -1) {
-          document.getElementById("evangelho").innerHTML = "<p>Evangelho não encontrado no conteúdo da página.</p>";
-          return;
+        // Corta o conteúdo a partir de "Evangelho"
+        let startIndex = html.indexOf("Evangelho");
+        if (startIndex === -1) throw new Error("Seção 'Evangelho' não encontrada.");
+
+        let recorte = html.slice(startIndex);
+
+        // Remove tudo depois de "Share:" ou "Partilhar:"
+        const shareIndex = recorte.search(/(Share:|Partilhar:)/i);
+        if (shareIndex !== -1) {
+          recorte = recorte.slice(0, shareIndex);
         }
 
-        const evangelhoHTML = content.slice(index);
-        document.getElementById("evangelho").innerHTML = evangelhoHTML;
+        document.getElementById("evangelho").innerHTML = recorte.trim();
 
       } catch (error) {
         console.error("Erro:", error);

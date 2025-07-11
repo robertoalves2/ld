@@ -2,31 +2,19 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Lectio Divina – Liturgia Diária</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <title>Lectio Divina – Evangelho do Dia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      font-family: 'Roboto', sans-serif;
-      background: #f2f2f2;
-      color: #333;
+      font-family: sans-serif;
+      background: #f4f4f4;
       max-width: 800px;
       margin: auto;
       padding: 2em;
-      line-height: 1.6;
+      color: #333;
     }
-    h1 {
-      color: #2c3e50;
-      font-size: 2em;
+    h1, h2 {
       text-align: center;
-      margin-bottom: 0.2em;
-    }
-    h2.subtitulo {
-      text-align: center;
-      font-weight: normal;
-      color: #555;
-      margin-top: 0;
-      margin-bottom: 1.5em;
-      font-size: 1.2em;
     }
     #evangelho {
       background: #fff;
@@ -35,48 +23,70 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
     footer {
+      margin-top: 3em;
       text-align: center;
       font-size: 0.9em;
       color: #888;
-      margin-top: 3em;
-      border-top: 1px solid #ddd;
-      padding-top: 1.5em;
     }
-    footer a {
-      color: #555;
+    a {
+      color: #3b5998;
       text-decoration: none;
-      font-weight: bold;
     }
-    footer a:hover {
+    a:hover {
       text-decoration: underline;
     }
   </style>
 </head>
 <body>
-
   <h1>Lectio Divina</h1>
-  <h2 class="subtitulo" id="subtitulo"></h2>
-
-  <div id="evangelho">Carregando...</div>
+  <h2 id="titulo">Carregando título...</h2>
+  <div id="evangelho">Carregando evangelho...</div>
 
   <footer>
-    Fonte dos dados: aliturgia.com<br>
+    Fonte: <a href="https://aliturgia.com" target="_blank">aliturgia.com</a><br>
     Desenvolvido por <a href="https://tecinova.top" target="_blank">tecinova.top</a>
   </footer>
 
   <script>
-    const data = {
-      titulo: "Lectio Divina de Hoje",
-      evangelho: `
-        <p><strong>Evangelho:</strong> João 3,16-21</p>
-        <p>Deus amou tanto o mundo que entregou o seu Filho único...</p>
-        <p>[Conteúdo completo do evangelho aqui]</p>
-      `
-    };
+    async function carregarEvangelho() {
+      try {
+        const res = await fetch('https://aliturgia.com/feed/');
+        const text = await res.text();
 
-    document.getElementById("subtitulo").textContent = data.titulo;
-    document.getElementById("evangelho").innerHTML = data.evangelho;
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, "application/xml");
+        const items = [...xml.querySelectorAll("item")];
+
+        let titulo = "Evangelho do Dia";
+        let evangelhoHtml = "Nenhum conteúdo encontrado.";
+
+        for (const item of items) {
+          const contentEncoded = item.getElementsByTagName("content:encoded")[0]?.textContent || "";
+          const title = item.querySelector("title")?.textContent || "";
+
+          if (contentEncoded.includes("Evangelho")) {
+            const indexInicio = contentEncoded.indexOf("Evangelho");
+            const trecho = contentEncoded.slice(indexInicio).trim();
+
+            // Limpeza opcional
+            const final = trecho.replace(/<!\[CDATA\[|\]\]>/g, "");
+
+            titulo = title;
+            evangelhoHtml = final;
+            break; // usa o mais recente com "Evangelho"
+          }
+        }
+
+        document.getElementById("titulo").textContent = titulo;
+        document.getElementById("evangelho").innerHTML = evangelhoHtml;
+      } catch (e) {
+        document.getElementById("titulo").textContent = "Erro ao carregar";
+        document.getElementById("evangelho").textContent = "Não foi possível carregar o conteúdo.";
+        console.error(e);
+      }
+    }
+
+    carregarEvangelho();
   </script>
-
 </body>
 </html>

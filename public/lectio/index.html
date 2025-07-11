@@ -50,8 +50,10 @@
   <script>
     async function carregarEvangelho() {
       try {
-        const res = await fetch('https://aliturgia.com/feed/');
-        const text = await res.text();
+        const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://aliturgia.com/feed/");
+        const res = await fetch(proxyUrl);
+        const data = await res.json();
+        const text = data.contents;
 
         const parser = new DOMParser();
         const xml = parser.parseFromString(text, "application/xml");
@@ -67,13 +69,11 @@
           if (contentEncoded.includes("Evangelho")) {
             const indexInicio = contentEncoded.indexOf("Evangelho");
             const trecho = contentEncoded.slice(indexInicio).trim();
-
-            // Limpeza opcional
             const final = trecho.replace(/<!\[CDATA\[|\]\]>/g, "");
 
             titulo = title;
             evangelhoHtml = final;
-            break; // usa o mais recente com "Evangelho"
+            break;
           }
         }
 

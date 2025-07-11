@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Lectio Divina – Evangelho do Dia</title>
+  <title>Sábado da Semana XIV do Tempo Comum</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
@@ -13,14 +13,31 @@
       padding: 2em;
       color: #333;
     }
-    h1, h2 {
+    h2 {
       text-align: center;
+      margin-top: 0;
     }
     #evangelho {
       background: #fff;
       padding: 1.5em;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    #nav-botoes {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1em;
+    }
+    button {
+      background-color: #3b5998;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2d4373;
     }
     footer {
       margin-top: 3em;
@@ -38,77 +55,93 @@
   </style>
 </head>
 <body>
-  <h1>Lectio Divina</h1>
   <h2 id="titulo">Carregando título...</h2>
+
+  <div id="nav-botoes">
+    <button onclick="navegar(-1)" id="anterior">&larr; Voltar</button>
+    <button onclick="navegar(1)" id="proximo">Dia anterior &rarr;</button>
+  </div>
+
   <div id="evangelho">Carregando evangelho...</div>
 
   <footer>
-    Fonte: <a href="https://aliturgia.com" target="_blank">aliturgia.com</a><br>
-    Desenvolvido por <a href="https://tecinova.top" target="_blank">tecinova.top</a>
+    Fonte: aliturgia.com<br>
+    <a href="https://liturgiadiaria.top/" target="_blank">&copy; 2025 Liturgia Diária - Todos os direitos reservados</a>
   </footer>
 
   <script>
-    async function carregarEvangelho() {
+    let indexAtual = 0;
+    let posts = [];
+
+    async function carregarFeed() {
       try {
         const feedUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://aliturgia.com/feed/");
         const feedRes = await fetch(feedUrl);
         const feedData = await feedRes.json();
-        const feedText = feedData.contents;
-
         const parser = new DOMParser();
-        const xml = parser.parseFromString(feedText, "application/xml");
-        const items = [...xml.querySelectorAll("item")];
-
-        let artigoEscolhido = null;
-
-        // Escolhe o primeiro post que contém "Evangelho" no conteúdo
-        for (const item of items) {
-          const title = item.querySelector("title")?.textContent || "";
-          const link = item.querySelector("link")?.textContent || "";
-
-          // Simplesmente escolhe o primeiro post
-          artigoEscolhido = { title, link };
-          break;
-        }
-
-        if (!artigoEscolhido) throw new Error("Nenhum post encontrado.");
-
-        document.getElementById("titulo").textContent = artigoEscolhido.title;
-
-        const postRes = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(artigoEscolhido.link));
-        const postData = await postRes.json();
-        const postHtml = postData.contents;
-
-        const htmlParser = new DOMParser();
-        const postDoc = htmlParser.parseFromString(postHtml, "text/html");
-        const article = postDoc.querySelector("article");
-
-        if (!article) throw new Error("Artigo não encontrado.");
-
-        let html = article.innerHTML;
-
-        // Corta o conteúdo a partir de "Evangelho"
-        let startIndex = html.indexOf("Evangelho");
-        if (startIndex === -1) throw new Error("Seção 'Evangelho' não encontrada.");
-
-        let recorte = html.slice(startIndex);
-
-        // Remove tudo depois de "Share:" ou "Partilhar:"
-        const shareIndex = recorte.search(/(Share:|Partilhar:)/i);
-        if (shareIndex !== -1) {
-          recorte = recorte.slice(0, shareIndex);
-        }
-
-        document.getElementById("evangelho").innerHTML = recorte.trim();
-
-      } catch (error) {
-        console.error("Erro:", error);
-        document.getElementById("titulo").textContent = "Erro ao carregar";
-        document.getElementById("evangelho").textContent = "Não foi possível carregar o conteúdo.";
+        const xml = parser.parseFromString(feedData.contents, "application/xml");
+        posts = [...xml.querySelectorAll("item")].map(item => ({
+          title: item.querySelector("title")?.textContent || "",
+          link: item.querySelector("link")?.textContent || ""
+        }));
+        exibirPost(indexAtual);
+      } catch (e) {
+        console.error("Erro ao carregar o feed:", e);
+        document.getElementById("evangelho").innerHTML = "Erro ao carregar o conteúdo.";
       }
     }
 
-    carregarEvangelho();
+    async function exibirPost(i) {
+      if (i < 0 || i >= posts.length) return;
+      indexAtual = i;
+      const { title, link } = posts[i];
+      document.getElementById("titulo").textContent = title;
+      const proxiedUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(link);
+      try {
+        const res = await fetch(proxiedUrl);
+        const data = await res.json();
+        const postDoc = new DOMParser().parseFromString(data.contents, "text/html");
+        const article = postDoc.querySelector("article");
+        if (!article) throw new Error("<article> não encontrado");
+
+        const nodes = [...article.querySelectorAll("h2, h3, strong, p")];
+        let startIndex = -1;
+        for (let i = 0; i < nodes.length; i++) {
+          if (/^Evangelho/i.test(nodes[i].textContent.trim())) {
+            startIndex = i;
+            break;
+          }
+        }
+
+        if (startIndex === -1) throw new Error("'Evangelho' não encontrado");
+
+        let recorteHTML = "";
+        const textoUsado = new Set();
+        for (let i = startIndex; i < nodes.length; i++) {
+          const texto = nodes[i].textContent.trim();
+          if (!texto || textoUsado.has(texto)) continue;
+          if (/Share:|Partilhar:/i.test(texto)) break;
+          if (/^compreender a palavra$|^meditar a palavra$|^rezar a palavra$|^compromisso$/i.test(texto)) continue;
+          recorteHTML += nodes[i].outerHTML;
+          textoUsado.add(texto);
+        }
+
+        document.getElementById("evangelho").innerHTML = recorteHTML || "Conteúdo não encontrado.";
+
+      } catch (e) {
+        console.error(e);
+        document.getElementById("evangelho").innerHTML = "Erro ao carregar o conteúdo.";
+      }
+    }
+
+    function navegar(delta) {
+      const novoIndex = indexAtual + delta;
+      if (novoIndex >= 0 && novoIndex < posts.length) {
+        exibirPost(novoIndex);
+      }
+    }
+
+    carregarFeed();
   </script>
 </body>
 </html>

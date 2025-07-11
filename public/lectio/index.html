@@ -92,16 +92,26 @@
       const articleElem = postDoc.querySelector("article");
       if (!articleElem) throw new Error("🛑 <article> não encontrado no post.");
 
-      const html = articleElem.innerHTML;
-      const i = html.indexOf("Evangelho");
-      if (i === -1) throw new Error("🛑 'Evangelho' não encontrado no conteúdo.");
+      const htmlOriginal = articleElem.innerHTML;
+      const textoLimpo = articleElem.textContent;
+      const trechoEvangelho = textoLimpo.indexOf("Evangelho");
 
-      let recorte = html.slice(i);
-      const s = recorte.search(/(Share:|Partilhar:)/i);
-      if (s !== -1) recorte = recorte.slice(0, s);
+      if (trechoEvangelho === -1) throw new Error("🛑 Palavra 'Evangelho' não encontrada no texto.");
 
-      console.log("Trecho final extraído:", recorte.slice(0, 200), "...");
+      // Localizar no HTML a posição equivalente
+      const regex = /Evangelho[^<]{0,80}/i;
+      const match = htmlOriginal.match(regex);
+      if (!match) throw new Error("🛑 Não foi possível localizar 'Evangelho' no HTML.");
+
+      const inicio = htmlOriginal.indexOf(match[0]);
+      let recorte = htmlOriginal.slice(inicio);
+
+      // Cortar após Share/Partilhar
+      const fim = recorte.search(/(Share:|Partilhar:)/i);
+      if (fim !== -1) recorte = recorte.slice(0, fim);
+
       document.getElementById("evangelho").innerHTML = recorte.trim();
+      console.log("✅ Evangelho extraído com sucesso.");
 
     } catch (err) {
       console.error("Erro no script:", err);
@@ -112,7 +122,5 @@
 
   carregarEvangelho();
 </script>
-
- 
 </body>
 </html>

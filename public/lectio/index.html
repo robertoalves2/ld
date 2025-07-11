@@ -46,82 +46,69 @@
     Fonte: <a href="https://aliturgia.com" target="_blank">aliturgia.com</a><br>
     Desenvolvido por <a href="https://tecinova.top" target="_blank">tecinova.top</a>
   </footer>
-<script>
-  async function carregarEvangelho() {
-    try {
-      console.log("Iniciando fetch do RSS via proxy...");
-      const feedUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://aliturgia.com/feed/");
-      const feedRes = await fetch(feedUrl);
-      const feedData = await feedRes.json();
-      console.log("RSS fetchado:", feedData);
 
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(feedData.contents, "application/xml");
-      const items = [...xml.querySelectorAll("item")];
-      console.log("Itens encontrados no feed:", items.length);
+  <script>
+    async function carregarEvangelho() {
+      try {
+        const feedUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://aliturgia.com/feed/");
+        const feedRes = await fetch(feedUrl);
+        const feedData = await feedRes.json();
+        const feedText = feedData.contents;
 
-      const agora = new Date();
-      const offsetBR = 3 * 60 * 60 * 1000;
-      let artigo = null;
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(feedText, "application/xml");
+        const items = [...xml.querySelectorAll("item")];
 
-      for (const item of items) {
-        const title = item.querySelector("title")?.textContent;
-        const link = item.querySelector("link")?.textContent;
-        const pub = item.querySelector("pubDate")?.textContent;
-        const pubBR = new Date(new Date(pub).getTime() + offsetBR);
+        let artigoEscolhido = null;
 
-        console.log("Post:", title, "|", link, "| PubDate BR:", pubBR.toString());
+        // Escolhe o primeiro post que contém "Evangelho" no conteúdo
+        for (const item of items) {
+          const title = item.querySelector("title")?.textContent || "";
+          const link = item.querySelector("link")?.textContent || "";
 
-        if (pubBR <= agora) {
-          artigo = { title, link };
-          console.log("-> Escolhido:", artigo);
+          // Simplesmente escolhe o primeiro post
+          artigoEscolhido = { title, link };
           break;
         }
+
+        if (!artigoEscolhido) throw new Error("Nenhum post encontrado.");
+
+        document.getElementById("titulo").textContent = artigoEscolhido.title;
+
+        const postRes = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(artigoEscolhido.link));
+        const postData = await postRes.json();
+        const postHtml = postData.contents;
+
+        const htmlParser = new DOMParser();
+        const postDoc = htmlParser.parseFromString(postHtml, "text/html");
+        const article = postDoc.querySelector("article");
+
+        if (!article) throw new Error("Artigo não encontrado.");
+
+        let html = article.innerHTML;
+
+        // Corta o conteúdo a partir de "Evangelho"
+        let startIndex = html.indexOf("Evangelho");
+        if (startIndex === -1) throw new Error("Seção 'Evangelho' não encontrada.");
+
+        let recorte = html.slice(startIndex);
+
+        // Remove tudo depois de "Share:" ou "Partilhar:"
+        const shareIndex = recorte.search(/(Share:|Partilhar:)/i);
+        if (shareIndex !== -1) {
+          recorte = recorte.slice(0, shareIndex);
+        }
+
+        document.getElementById("evangelho").innerHTML = recorte.trim();
+
+      } catch (error) {
+        console.error("Erro:", error);
+        document.getElementById("titulo").textContent = "Erro ao carregar";
+        document.getElementById("evangelho").textContent = "Não foi possível carregar o conteúdo.";
       }
-
-      if (!artigo) throw new Error("🛑 Nenhum post válido até agora.");
-
-      document.getElementById("titulo").textContent = artigo.title;
-
-      console.log("Buscando HTML do post:", artigo.link);
-      const postRes = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(artigo.link));
-      const postData = await postRes.json();
-      console.log("HTML do post recebido:", postData);
-
-      const postDoc = new DOMParser().parseFromString(postData.contents, "text/html");
-      const articleElem = postDoc.querySelector("article");
-      if (!articleElem) throw new Error("🛑 <article> não encontrado no post.");
-
-      const htmlOriginal = articleElem.innerHTML;
-      const textoLimpo = articleElem.textContent;
-      const trechoEvangelho = textoLimpo.indexOf("Evangelho");
-
-      if (trechoEvangelho === -1) throw new Error("🛑 Palavra 'Evangelho' não encontrada no texto.");
-
-      // Localizar no HTML a posição equivalente
-      const regex = /Evangelho[^<]{0,80}/i;
-      const match = htmlOriginal.match(regex);
-      if (!match) throw new Error("🛑 Não foi possível localizar 'Evangelho' no HTML.");
-
-      const inicio = htmlOriginal.indexOf(match[0]);
-      let recorte = htmlOriginal.slice(inicio);
-
-      // Cortar após Share/Partilhar
-      const fim = recorte.search(/(Share:|Partilhar:)/i);
-      if (fim !== -1) recorte = recorte.slice(0, fim);
-
-      document.getElementById("evangelho").innerHTML = recorte.trim();
-      console.log("✅ Evangelho extraído com sucesso.");
-
-    } catch (err) {
-      console.error("Erro no script:", err);
-      document.getElementById("titulo").textContent = "Erro ao carregar";
-      document.getElementById("evangelho").textContent = "Não foi possível carregar o conteúdo.";
     }
-  }
 
-  carregarEvangelho();
-</script>
-
+    carregarEvangelho();
+  </script>
 </body>
 </html>

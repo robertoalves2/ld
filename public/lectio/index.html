@@ -1,11 +1,103 @@
-<script>
-  async function depurarRSS() {
-    const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://aliturgia.com/feed/");
-    console.log("🔄 Buscando via proxy:", proxyUrl);
-    const res = await fetch(proxyUrl);
-    const text = await res.text();
-    console.log("📦 Conteúdo do feed (completo):", text);
-    document.body.innerHTML = "<pre>"+text.replace(/&/g,"&amp;")+"</pre>";
-  }
-  depurarRSS();
-</script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Lectio Divina – Evangelho do Dia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      max-width: 800px;
+      margin: auto;
+      padding: 2em;
+      color: #333;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    #evangelho {
+      background: #fff;
+      padding: 1.5em;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    footer {
+      margin-top: 3em;
+      text-align: center;
+      font-size: 0.9em;
+      color: #888;
+    }
+    a {
+      color: #3b5998;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lectio Divina</h1>
+  <h2 id="titulo">Carregando título...</h2>
+  <div id="evangelho">Carregando evangelho...</div>
+
+  <footer>
+    Fonte: <a href="https://aliturgia.com" target="_blank">aliturgia.com</a><br>
+    Desenvolvido por <a href="https://tecinova.top" target="_blank">tecinova.top</a>
+  </footer>
+
+  <script>
+    async function carregarEvangelho() {
+      try {
+        const feedUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://aliturgia.com/feed/");
+        const feedRes = await fetch(feedUrl);
+        const feedData = await feedRes.json();
+        const feedText = feedData.contents;
+
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(feedText, "application/xml");
+        const firstItem = xml.querySelector("item");
+
+        const postTitle = firstItem.querySelector("title").textContent;
+        const postLink = firstItem.querySelector("link").textContent;
+
+        // Atualiza o título da página
+        document.getElementById("titulo").textContent = postTitle;
+
+        // Agora faz o fetch do conteúdo da página do post
+        const proxiedPostUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(postLink);
+        const postRes = await fetch(proxiedPostUrl);
+        const postData = await postRes.json();
+        const postHtml = postData.contents;
+
+        // Extrair conteúdo do artigo
+        const htmlParser = new DOMParser();
+        const postDoc = htmlParser.parseFromString(postHtml, "text/html");
+        const article = postDoc.querySelector("article");
+
+        if (!article) throw new Error("Artigo não encontrado");
+
+        let content = article.innerHTML;
+
+        // Extrair trecho a partir da palavra “Evangelho”
+        const index = content.indexOf("Evangelho");
+        if (index === -1) {
+          document.getElementById("evangelho").innerHTML = "<p>Evangelho não encontrado no conteúdo da página.</p>";
+          return;
+        }
+
+        const evangelhoHTML = content.slice(index);
+        document.getElementById("evangelho").innerHTML = evangelhoHTML;
+
+      } catch (error) {
+        console.error("Erro:", error);
+        document.getElementById("titulo").textContent = "Erro ao carregar";
+        document.getElementById("evangelho").textContent = "Não foi possível carregar o conteúdo.";
+      }
+    }
+
+    carregarEvangelho();
+  </script>
+</body>
+</html>

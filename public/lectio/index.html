@@ -7,6 +7,9 @@
   <meta name="author" content="Liturgia Diária">
   <title>Evangelho do Dia e Lectio Divina - Liturgia Diária</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="canonical" href="https://liturgiadiaria.top/" />
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+  <script defer data-domain="liturgiadiaria.top" src="https://plausible.io/js/plausible.js"></script>
   <style>
     body {
       font-family: sans-serif;
@@ -16,7 +19,7 @@
       padding: 2em;
       color: #333;
     }
-    h2 {
+    h1 {
       text-align: center;
       margin-top: 0;
     }
@@ -28,11 +31,11 @@
     }
     #nav-botoes {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       margin-bottom: 1em;
     }
     button {
-      background-color: #3b5998;
+      background-color: #6a1b9a;
       color: white;
       border: none;
       padding: 10px 15px;
@@ -40,7 +43,7 @@
       cursor: pointer;
     }
     button:hover {
-      background-color: #2d4373;
+      background-color: #4a126b;
     }
     footer {
       margin-top: 3em;
@@ -49,30 +52,25 @@
       color: #888;
     }
     a {
-      color: #3b5998;
+      color: #6a1b9a;
       text-decoration: none;
     }
     a:hover {
       text-decoration: underline;
     }
   </style>
-  <link rel="canonical" href="https://liturgiadiaria.top/" />
-  <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
-<script defer data-domain="liturgiadiaria.top" src="https://plausible.io/js/plausible.js"></script>
 </head>
 <body>
-  <h1 id="titulo">Carregando...</h1>
+  <h1 id="titulo">Carregando título...</h1>
 
   <div id="nav-botoes">
-<button onclick="navegar(1)" id="proximo">&larr; Dia anterior</button>
+    <button onclick="navegar(1)" id="proximo">&larr; Dia anterior</button>
   </div>
 
-  <div id="evangelho">Carregando...</div>
+  <div id="evangelho">Carregando evangelho...</div>
 
   <div style="margin-top: 1em; text-align: center">
-    <button onclick="compartilhar()" style="background:#25d366;color:#fff;border:none;padding:10px 20px;border-radius:5px;font-weight:bold;cursor:pointer">
-      📤 Compartilhar conteúdo
-    </button>
+    <button onclick="compartilhar()">Compartilhar</button>
   </div>
 
   <div style="margin-top:2em;text-align:center">
@@ -133,14 +131,7 @@
         if (!article) throw new Error("<article> não encontrado");
 
         const nodes = [...article.querySelectorAll("h2, h3, strong, p")];
-        let startIndex = -1;
-        for (let i = 0; i < nodes.length; i++) {
-          if (/^Evangelho/i.test(nodes[i].textContent.trim())) {
-            startIndex = i;
-            break;
-          }
-        }
-
+        let startIndex = nodes.findIndex(n => /^Evangelho/i.test(n.textContent.trim()));
         if (startIndex === -1) throw new Error("'Evangelho' não encontrado");
 
         let recorteHTML = "";
@@ -169,29 +160,28 @@
       }
     }
 
+    function compartilhar() {
+      const titulo = document.getElementById("titulo").textContent;
+      const conteudo = document.getElementById("evangelho").innerText;
+      const texto = `📖 *${titulo}*\n\n${conteudo}\n\n🙏 Acesse: www.liturgiadiaria.top/lectio`;
+      const fallback = () => {
+        navigator.clipboard.writeText(texto)
+          .then(() => alert("📋 Conteúdo copiado para a área de transferência!"))
+          .catch(() => alert("Não foi possível copiar. Copie manualmente."));
+      };
+
+      if (window.isSecureContext && navigator.canShare && navigator.canShare({ text: texto })) {
+        navigator.share({
+          title: titulo,
+          text: texto,
+          url: location.href
+        }).catch(fallback);
+      } else {
+        fallback();
+      }
+    }
+
     carregarFeed();
   </script>
-<script>
-function compartilhar() {
-  const titulo = document.getElementById("titulo").textContent;
-  const conteudo = document.getElementById("evangelho").innerText;
-  const texto = `${titulo}
-
-${conteudo}
-
-Fonte: liturgiadiaria.top`;
-
-  if (navigator.share) {
-    navigator.share({
-      title: titulo,
-      text: texto,
-      url: window.location.href
-    }).catch(console.error);
-  } else {
-    navigator.clipboard.writeText(texto).then(() => alert("Conteúdo copiado para a área de transferência!"));
-  }
-}
-</script>
-
 </body>
 </html>

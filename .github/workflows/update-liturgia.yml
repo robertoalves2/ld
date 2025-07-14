@@ -1,4 +1,4 @@
-name: Atualizar Evangelho Diário
+  name: Atualizar Evangelho Diário
 
 on:
   schedule:
@@ -23,11 +23,11 @@ jobs:
       - run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add public/lectio/evangelho.html || true
+          git add public/lectio/evangelho.html package-lock.json || true
 
           if git diff --cached --quiet; then
-            echo "✅ Nenhuma alteração em evangelho.html para commitar."
+            echo "✅ Nenhuma alteração relevante para commitar."
           else
-            git commit -m "Atualiza evangelho do dia"
+            git commit -m "Atualiza evangelho do dia + dependências"
             git push
           fi

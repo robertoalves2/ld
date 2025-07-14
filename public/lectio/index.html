@@ -61,13 +61,13 @@
   </style>
 </head>
 <body>
-  <h1 id="titulo">Carregando título...</h1>
+  <h1 id="titulo">Carregando...</h1>
 
   <div id="nav-botoes">
     <button onclick="navegar(1)" id="proximo">&larr; Dia anterior</button>
   </div>
 
-  <div id="evangelho">Carregando evangelho...</div>
+  <div id="evangelho">Carregando...</div>
 
   <div style="margin-top: 1em; text-align: center">
     <button onclick="compartilhar()">Compartilhar</button>
@@ -86,7 +86,7 @@
 
   <div style="margin-top:2em;text-align:center">
     <a href="https://ofertas.tecinova.top/" target="_blank">
-      <img src="banner_ofertas exclusivas.webp" alt="Confira ofertas exclusivas" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 0 5px rgba(0,0,0,0.1)" />
+      <img src="https://liturgiadiaria.top/lectio/banner-ofertas-exclusivas.webp?token=GHSAT0AAAAAADFVQTYIZK2PLJJKIWLZKUU22DRUWZQ" alt="Confira ofertas exclusivas" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 0 5px rgba(0,0,0,0.1)" />
     </a>
   </div>
 
@@ -146,10 +146,10 @@
         }
 
         recorteHTML = recorteHTML
-          .replace(/(<[^>]*>\s*)?(compreender a palavra)(\s*<[^>]*>)?/gi, '<h3>💡 Compreender a Palavra</h3>')
-          .replace(/(<[^>]*>\s*)?(meditar a palavra)(\s*<[^>]*>)?/gi, '<h3>🪔 Meditar a Palavra</h3>')
-          .replace(/(<[^>]*>\s*)?(rezar a palavra)(\s*<[^>]*>)?/gi, '<h3>🙏 Rezar a Palavra</h3>')
-          .replace(/(<[^>]*>\s*)?(compromisso)(\s*<[^>]*>)?/gi, '<h3>📌 Compromisso</h3>');
+          .replace(/(<[^>]*>\s*)?(compreender a palavra)(\s*<[^>]*>)?/gi, '<h3> Compreender a Palavra</h3>')
+          .replace(/(<[^>]*>\s*)?(meditar a palavra)(\s*<[^>]*>)?/gi, '<h3> Meditar a Palavra</h3>')
+          .replace(/(<[^>]*>\s*)?(rezar a palavra)(\s*<[^>]*>)?/gi, '<h3> Rezar a Palavra</h3>')
+          .replace(/(<[^>]*>\s*)?(compromisso)(\s*<[^>]*>)?/gi, '<h3> Compromisso</h3>');
 
         document.getElementById("evangelho").innerHTML = recorteHTML || "Conteúdo não encontrado.";
 

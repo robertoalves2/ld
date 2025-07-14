@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Evangelho do Dia - Lectio Divina</title>
+  <meta name="description" content="Lectio Divina do Evangelho do Dia. Ideal para orações diárias e reflexão católica.">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <main id="content">
+    <!-- conteúdo carregado aqui -->
+  </main>
+  <script>
+    fetch("evangelho.html")
+      .then(r => r.text())
+      .then(html => document.getElementById("content").innerHTML = html)
+      .catch(() => document.getElementById("content").innerHTML = "<p>Erro ao carregar o conteúdo.</p>");
+  </script>
+</body>
+</html>

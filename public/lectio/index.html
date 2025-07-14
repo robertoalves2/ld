@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Evangelho do Dia - Lectio Divina</title>
+  <meta name="description" content="Lectio Divina do Evangelho do Dia. Ideal para orações diárias e reflexão católica.">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <main id="content">
+    <!-- conteúdo carregado aqui -->
+  </main>
+
+  <div style="margin-top: 1em; text-align: center">
+    <button onclick="compartilhar()">Compartilhar</button>
+  </div>
+
+  <script>
+    fetch("evangelho.html")
+      .then(r => r.text())
+      .then(html => document.getElementById("content").innerHTML = html)
+      .catch(() => document.getElementById("content").innerHTML = "<p>Erro ao carregar o conteúdo.</p>");
+
+    function compartilhar() {
+      const titulo = document.getElementById("titulo")?.textContent ?? "";
+      const conteudo = document.getElementById("evangelho")?.innerText ?? "";
+
+      const texto = `📖 *${titulo}*
+
+${conteudo
+  .replace(/compreender a palavra/gi, '💡 Compreender a Palavra')
+  .replace(/meditar a palavra/gi, '🪔 Meditar a Palavra')
+  .replace(/rezar a palavra/gi, '🙏 Rezar a Palavra')
+  .replace(/compromisso/gi, '📌 Compromisso')}
+
+🙏 Acesse: www.liturgiadiaria.top/lectio`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: titulo,
+          text: texto,
+          url: "https://www.liturgiadiaria.top/lectio"
+        }).catch(() => copiar(texto));
+      } else {
+        copiar(texto);
+      }
+    }
+
+    function copiar(texto) {
+      navigator.clipboard.writeText(texto).then(() => {
+        alert("📋 Conteúdo copiado para a área de transferência!");
+      }).catch(() => {
+        prompt("Copie o conteúdo manualmente:", texto);
+      });
+    }
+  </script>
+</body>
+</html>

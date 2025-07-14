@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="description" content="Liturgia Diária com o Evangelho do Dia comentado. Lectio Divina, Evangelho de hoje e a Liturgia comentada. Ideal para orações diárias e reflexão católica.">
+  <meta name="description" content="Lectio Divina do Evangelho do Dia. Ideal para orações diárias e reflexão católica.">
   <meta name="keywords" content="liturgia diária, liturgia da diária, evangelho do dia, evangelho de hoje, liturgia de hoje, evangelho dia, evangelho, lectio divina, evangelho do dia de hoje, o evangelho de hoje, liturgia diaria hoje, liturgia diária hoje, liturgia diaria de hoje, divina lectio, divino lectio, evangelho de hoje do dia, evangelho dia de hoje, liturgia do dia de hoje, evangelho do dia comentado, liturgia diária comentada de hoje, evangelho no lar, liturgia do ordinário, liturgia diaria comentada, o evangelho do dia, lectio divina de hoje, evangelho hoje, evangelho do lar">
   <meta name="author" content="Liturgia Diária">
   <title>Evangelho do Dia e Lectio Divina - Liturgia Diária</title>
@@ -86,7 +86,7 @@
 
   <div style="margin-top:2em;text-align:center">
     <a href="https://ofertas.tecinova.top/" target="_blank">
-      <img src="https://liturgiadiaria.top/lectio/banner-ofertas-exclusivas.webp?token=GHSAT0AAAAAADFVQTYIZK2PLJJKIWLZKUU22DRUWZQ" alt="Confira ofertas exclusivas" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 0 5px rgba(0,0,0,0.1)" />
+      <img src="banner_ofertas exclusivas.webp" alt="Confira ofertas exclusivas" style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 0 5px rgba(0,0,0,0.1)" />
     </a>
   </div>
 
@@ -145,6 +145,12 @@
           textoUsado.add(texto);
         }
 
+        recorteHTML = recorteHTML
+          .replace(/(<[^>]*>\s*)?(compreender a palavra)(\s*<[^>]*>)?/gi, '<h3>💡 Compreender a Palavra</h3>')
+          .replace(/(<[^>]*>\s*)?(meditar a palavra)(\s*<[^>]*>)?/gi, '<h3>🪔 Meditar a Palavra</h3>')
+          .replace(/(<[^>]*>\s*)?(rezar a palavra)(\s*<[^>]*>)?/gi, '<h3>🙏 Rezar a Palavra</h3>')
+          .replace(/(<[^>]*>\s*)?(compromisso)(\s*<[^>]*>)?/gi, '<h3>📌 Compromisso</h3>');
+
         document.getElementById("evangelho").innerHTML = recorteHTML || "Conteúdo não encontrado.";
 
       } catch (e) {
@@ -163,7 +169,11 @@
     function compartilhar() {
       const titulo = document.getElementById("titulo").textContent;
       const conteudo = document.getElementById("evangelho").innerText;
-      const texto = `📖 *${titulo}*\n\n${conteudo}\n\n🙏 Acesse: www.liturgiadiaria.top/lectio`;
+      const texto = `📖 *${titulo}*
+
+${conteudo.replace(/compreender a palavra/gi, '💡 Compreender a Palavra').replace(/meditar a palavra/gi, '🪔 Meditar a Palavra').replace(/rezar a palavra/gi, '🙏 Rezar a Palavra').replace(/compromisso/gi, '📌 Compromisso')}
+
+🙏 Acesse: www.liturgiadiaria.top/lectio`;
       const fallback = () => {
         navigator.clipboard.writeText(texto)
           .then(() => alert("📋 Conteúdo copiado para a área de transferência!"))

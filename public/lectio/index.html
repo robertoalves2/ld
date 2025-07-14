@@ -168,13 +168,13 @@
         <a href="https://link.liturgiadiaria.top/youtube-liturgiadadiaria" target="_blank" rel="noopener noreferrer">YouTube</a> |
         <a href="https://link.liturgiadiaria.top/instagram-liturgiadadiaria" target="_blank" rel="noopener noreferrer">Instagram</a> |
         <a href="https://link.liturgiadiaria.top/whatsapp-canal-liturgia" target="_blank" rel="noopener noreferrer">WhatsApp</a> |
-        <a href="https://link.liturgiadiaria.top/facebook-liturgiadiaria" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a href="https://link.liturgiadiaria.top/facebook-liturgiadadiaria" target="_blank" rel="noopener noreferrer">Facebook</a>
       </p>
     </div>
 
     <div class="banner-container">
-      <a href="https://link.liturgiadiaria.top/ofertas-exclusivas-tecinova" target="_blank" rel="noopener noreferrer">
-        <img src="https://liturgiadiaria.top/banner-ofertas-exclusivas.webp?height=100&width=600" alt="Confira ofertas exclusivas" />
+      <a href="https://ofertas.tecinova.top/" target="_blank" rel="noopener noreferrer">
+        <img src="/placeholder.svg?height=100&width=600" alt="Confira ofertas exclusivas" />
       </a>
     </div>
 
@@ -382,34 +382,63 @@
       if (!currentPostContent) return;
 
       const titulo = currentPostContent.title;
+      const postHtmlContent = currentPostContent.content; // Conteúdo HTML já processado com <h3>
+
       const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = currentPostContent.content;
-      const conteudo = tempDiv.innerText;
+      tempDiv.innerHTML = postHtmlContent;
 
-      const texto = `📖 *${titulo}*
+      let formattedContent = "";
+      // Itera sobre os nós filhos para construir o texto formatado
+      Array.from(tempDiv.children).forEach(node => {
+        const text = node.textContent?.trim() || "";
+        if (!text) return;
 
-${conteudo
-  .replace(/Compreender a Palavra/gi, "💡 Compreender a Palavra")
-  .replace(/Meditar a Palavra/gi, "🧠 Meditar a Palavra")
-  .replace(/Rezar a Palavra/gi, "🙏 Rezar a Palavra")
-  .replace(/Compromisso/gi, "📌 Compromisso")
-  .replace(/Compromisso Semanal/gi, "📌 Compromisso Semanal")}`; // Adicionado para compartilhamento
+        if (node.tagName === 'H2') {
+          formattedContent += `\n\n*${text}*\n`; // Negrito e quebras de linha para H2
+        } else if (node.tagName === 'H3') {
+          // Aplica substituições de emoji diretamente aqui para H3s
+          let processedText = text;
+          processedText = processedText.replace(/Compreender a Palavra/gi, "💡 Compreender a Palavra");
+          processedText = processedText.replace(/Meditar a Palavra/gi, "🧠 Meditar a Palavra");
+          processedText = processedText.replace(/Rezar a Palavra/gi, "🙏 Rezar a Palavra");
+          processedText = processedText.replace(/Compromisso/gi, "📌 Compromisso");
+          processedText = processedText.replace(/Compromisso Semanal/gi, "📌 Compromisso Semanal");
+          formattedContent += `\n\n*${processedText}*\n`; // Negrito e quebras de linha para H3
+        } else if (node.tagName === 'P') {
+          // Verifica por tags strong dentro de parágrafos e as coloca em negrito
+          let paragraphText = "";
+          Array.from(node.childNodes).forEach(child => {
+            if (child.nodeType === Node.TEXT_NODE) {
+              paragraphText += child.textContent;
+            } else if (child.tagName === 'STRONG') {
+              paragraphText += `*${child.textContent}*`; // Negrito para conteúdo strong
+            } else {
+              paragraphText += child.textContent; // Fallback para outras tags
+            }
+          });
+          formattedContent += `\n${paragraphText}\n`; // Nova linha para parágrafos
+        } else if (node.tagName === 'STRONG') {
+          formattedContent += `\n*${text}*\n`; // Negrito para strong standalone
+        }
+      });
+
+      // Limpa múltiplas quebras de linha excessivas
+      formattedContent = formattedContent.replace(/\n\n\n+/g, '\n\n').trim();
+
+      const texto = `📖 *${titulo}*\n\n${formattedContent}\n\n🙏 Acesse: www.liturgiadiaria.top/lectio`;
 
       const fallback = () => {
-        navigator.clipboard
-          .writeText(texto)
+        navigator.clipboard.writeText(texto)
           .then(() => alert("📋 Conteúdo copiado para a área de transferência!"))
           .catch(() => alert("Não foi possível copiar. Copie manualmente."));
       };
 
       if (window.isSecureContext && navigator.canShare && navigator.canShare({ text: texto })) {
-        navigator
-          .share({
-            title: titulo,
-            text: texto,
-            url: location.href,
-          })
-          .catch(fallback);
+        navigator.share({
+          title: titulo,
+          text: texto,
+          url: location.href
+        }).catch(fallback);
       } else {
         fallback();
       }

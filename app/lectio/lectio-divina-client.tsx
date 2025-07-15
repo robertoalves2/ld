@@ -2,40 +2,36 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Share2, Minus, Plus, Play, Pause, Check, Calendar } from "lucide-react"
-import { format } from "date-fns"
+import { Share2, Minus, Plus, Play, Pause, Check, Calendar, ArrowLeft, ArrowRight } from "lucide-react"
+import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { DayPicker } from "react-day-picker"
-import { Button } from "@/components/ui/button" // Ensure Button is imported
+import "react-day-picker/dist/style.css" // Import default styles for DayPicker
+import { Button } from "@/components/ui/button"
 import { Facebook, MessageSquare, Send, Instagram, Youtube } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { getPreviousDay, getNextDay } from "@/lib/lectio-parser"
 
-interface LiturgiaData {
-  data?: string
-  liturgia?: string
-  cor?: string
-  dia?: string
-  antifonas?: {
-    entrada?: string
-  }
-  oracoes?: {
-    coleta?: string
-  }
-  leituras?:
-    | string
-    | {
-        primeiraLeitura?: any[]
-        segundaLeitura?: any[]
-        salmo?: any[]
-        evangelho?: any[]
-        aclamacao?: any[]
-        extras?: any[]
-      }
-  [key: string]: any
+interface LectioContent {
+  evangelhoTitle: string
+  evangelhoReference: string
+  sections: {
+    title: string
+    content: string
+  }[]
 }
 
-export default function LiturgiaPage() {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-  const [liturgiaData, setLiturgiaData] = useState<LiturgiaData | null>(null)
+interface LectioDivinaClientProps {
+  initialData: LectioContent | null
+  initialDate: string
+}
+
+export default function LectioDivinaClient({ initialData, initialDate }: LectioDivinaClientProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const [selectedDate, setSelectedDate] = useState<Date>(parseISO(initialDate))
+  const [lectioData, setLectioData] = useState<LectioContent | null>(initialData)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fontSize, setFontSize] = useState(16)
@@ -48,6 +44,21 @@ export default function LiturgiaPage() {
   const [scrollSpeed, setScrollSpeed] = useState(1)
 
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Sync selectedDate with URL param
+  useEffect(() => {
+    const dateParam = searchParams.get("date")
+    if (dateParam) {
+      try {
+        const parsedDate = parseISO(dateParam)
+        if (!isNaN(parsedDate.getTime())) {
+          setSelectedDate(parsedDate)
+        }
+      } catch (e) {
+        console.error("Invalid date parameter:", e)
+      }
+    }
+  }, [searchParams])
 
   // Auto dark mode based on time
   useEffect(() => {
@@ -129,113 +140,19 @@ export default function LiturgiaPage() {
     setIsDarkMode(!isDarkMode)
   }
 
-  const fetchLiturgia = async (date: Date) => {
-    setLoading(true)
-    setError(null)
-
-    const dateFormats = [
-      format(date, "yyyy-MM-dd"),
-      format(date, "dd-MM-yyyy"),
-      format(date, "yyyy/MM/dd"),
-      format(date, "dd/MM/yyyy"),
-    ]
-
-    const baseUrls = [
-      "https://liturgia.up.railway.app/v2",
-      "https://liturgia.up.railway.app/api/v2",
-      "https://liturgia.up.railway.app",
-    ]
-
-    let lastError = ""
-
-    for (const baseUrl of baseUrls) {
-      for (const dateStr of dateFormats) {
-        try {
-          const testUrl = `${baseUrl}/${dateStr}`
-          console.log(`Tentando URL: ${testUrl}`)
-
-          const response = await fetch(testUrl)
-
-          if (response.ok) {
-            const data = await response.json()
-            console.log("Sucesso com URL:", testUrl)
-            console.log("Dados recebidos:", data)
-            setLiturgiaData(data)
-            setLoading(false)
-            return
-          } else {
-            lastError = `HTTP ${response.status}: ${response.statusText}`
-          }
-        } catch (err) {
-          lastError = err instanceof Error ? err.message : "Erro desconhecido"
-        }
-      }
+  const handleDateChange = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDate(date)
+      setShowCalendar(false)
+      router.push(`/lectio?date=${format(date, "yyyy-MM-dd")}`)
     }
-
-    for (const baseUrl of baseUrls) {
-      try {
-        const response = await fetch(baseUrl)
-        if (response.ok) {
-          const data = await response.json()
-          setLiturgiaData(data)
-          setLoading(false)
-          return
-        }
-      } catch (err) {
-        console.log(`Erro ${baseUrl}: ${err}`)
-      }
-    }
-
-    setError(`Não foi possível conectar à API. Último erro: ${lastError}`)
-
-    // Fallback para dados de exemplo se a API falhar
-    const sampleData: LiturgiaData = {
-      data: format(selectedDate, "yyyy-MM-dd"),
-      liturgia: "Sábado da 10ª Semana do Tempo Comum",
-      cor: "Verde",
-      antifonas: {
-        entrada:
-          "O Senhor é minha luz e salvação, de quem eu terei medo? O Senhor é a proteção da minha vida; perante quem eu tremerei? São eles, inimigos e opressores, que tropeçam e sucumbem. (Cf. Sl 26, 1-2)",
-      },
-      oracoes: {
-        coleta:
-          "Ó Deus, fonte de todo o bem, atendei ao nosso apelo e fazei-nos, por vossa inspiração, pensar o que é certo e realizá-lo com vossa ajuda. Por Nosso Senhor Jesus Cristo, vosso Filho, que é Deus, e convosco vive e reina, na unidade do Espírito Santo, por todos os séculos dos séculos.",
-      },
-      leituras: {
-        primeiraLeitura: [
-          {
-            referencia: "2 Cor 5,14-21",
-            titulo: "Leitura da segunda carta de São Paulo aos Coríntios",
-            texto:
-              "Irmãos, 14o amor de Cristo nos pressiona, pois julgamos que um só morreu por todos e que, logo, todos morreram por ele. 15Cristo morreu por todos, para que os vivos não vivam mais para si mesmos, mas para aquele que por eles morreu e ressuscitou. 16Portanto, se alguém está em Cristo, é uma criatura nova. O mundo velho desapareceu. Tudo agora é novo. 17E tudo vem de Deus, que, por Cristo, nos reconciliou consigo e nos confiou o ministério da reconciliação. 18Com efeito, em Cristo, Deus reconciliou o mundo consigo, não imputando aos homens as suas faltas e colocando em nós a palavra da reconciliação. 19Somos, pois, embaixadores de Cristo, e é Deus mesmo que exorta através de nós. Em nome de Cristo, nós vos suplicamos: deixai-vos reconciliar com Deus. 20Aquele que não cometeu nenhum pecado, Deus o fez pecado por nós, para que nele nos tornemos justiça de Deus.",
-          },
-        ],
-        salmo: [
-          {
-            referencia: "Sl 102(103)",
-            refrao: "O Senhor é indulgente, é favorável.",
-            texto:
-              "— Bendize, ó minha alma, ao Senhor, e todo o meu ser, seu santo nome! Bendize, ó minha alma, ao Senhor, não te esqueças de nenhum de seus favores!\n— Pois ele perdoa toda culpa e cura toda a tua enfermidade; da sepultura ele salva a tua vida e te cerca de carinho e compaixão.\n— O Senhor é indulgente, é favorável, é paciente, é bondoso e compassivo. Não fica sempre repetindo as suas queixas nem guarda eternamente o seu rancor.\n— Quanto os céus por sobre a terra se elevam, tanto é grande o seu amor aos que o temem; quanto dista o nascente do poente, tanto afasta para longe nossos crimes.",
-          },
-        ],
-        evangelho: [
-          {
-            referencia: "Mt 5,33-37",
-            titulo: "Proclamação do Evangelho de Jesus Cristo segundo Mateus",
-            texto:
-              "Naquele tempo, disse Jesus aos seus discípulos: 33\"Vós ouvistes o que foi dito aos antigos: 'Não jurarás falso', mas 'cumprirás os teus juramentos feitos ao Senhor'. 34Eu, porém, vos digo: não jureis de modo algum: nem pelo céu, porque é o trono de Deus; 35nem pela terra, porque é o suporte onde apoia os seus pés; nem por Jerusalém, porque é a cidade do grande rei. 36Não jures tampouco pela tua cabeça, porque tu não podes tornar branco ou preto um só fio do cabelo. 37Seja o vosso 'sim' sim e o vosso 'não' não. Tudo o que for além disso vem do maligno.\"",
-          },
-        ],
-      },
-    }
-
-    setLiturgiaData(sampleData)
-    setLoading(false)
   }
 
-  useEffect(() => {
-    fetchLiturgia(selectedDate)
-  }, [selectedDate])
+  const navigateDate = (delta: number) => {
+    const newDate = delta === -1 ? getPreviousDay(selectedDate) : getNextDay(selectedDate)
+    setSelectedDate(newDate)
+    router.push(`/lectio?date=${format(newDate, "yyyy-MM-dd")}`)
+  }
 
   const increaseFontSize = () => {
     setFontSize((prev) => Math.min(prev + 2, 24))
@@ -245,84 +162,22 @@ export default function LiturgiaPage() {
     setFontSize((prev) => Math.max(prev - 2, 12))
   }
 
-  const formatVerses = (text: string | undefined) => {
-    if (!text) return "Texto não disponível"
-
-    const formattedText = text.replace(/(\d+)\s*/g, '<sup class="verse-number">$1</sup>').replace(/\n/g, "<br>")
-
-    return (
-      <div
-        className="whitespace-pre-line leading-relaxed formatted-text"
-        dangerouslySetInnerHTML={{ __html: formattedText }}
-      />
-    )
-  }
-
-  const formatDateTitle = (date: Date) => {
-    return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
-  }
-
   const getCompleteContent = () => {
-    const dateStr = formatDateTitle(selectedDate)
+    if (!lectioData) return ""
 
-    // Código original para outras datas
-    if (!liturgiaData) return ""
+    let content = `📖 LECTIO DIVINA - ${format(selectedDate, "dd 'de' MMMM yyyy", { locale: ptBR }).toUpperCase()}\n\n`
+    content += `*${lectioData.evangelhoTitle}*\n\n`
 
-    const liturgiaStr = liturgiaData.liturgia || ""
-
-    let content = `📖 LITURGIA DE ${dateStr.toUpperCase()}\n`
-    content += `${liturgiaStr}\n\n`
-
-    // Antífona de Entrada
-    if (liturgiaData.antifonas?.entrada) {
-      content += `🚪 ANTÍFONA DE ENTRADA\n`
-      content += `${liturgiaData.antifonas.entrada}\n\n`
-    }
-
-    // Oração do Dia
-    if (liturgiaData.oracoes?.coleta) {
-      content += `🙏 ORAÇÃO DO DIA\n`
-      content += `${liturgiaData.oracoes.coleta}\n\n`
-    }
-
-    const leituras = processLeituras()
-
-    // Primeira Leitura
-    if (leituras?.primeiraLeitura && leituras.primeiraLeitura.length > 0) {
-      content += `📜 PRIMEIRA LEITURA (${leituras.primeiraLeitura[0].referencia})\n`
-      if (leituras.primeiraLeitura[0].titulo) {
-        content += `${leituras.primeiraLeitura[0].titulo}\n\n`
-      }
-      content += `${leituras.primeiraLeitura[0].texto}\n`
-      content += `— Palavra do Senhor.\n— Graças a Deus.\n\n`
-    }
-
-    // Salmo Responsorial
-    if (leituras?.salmo && leituras.salmo.length > 0) {
-      content += `🎵 SALMO RESPONSORIAL (${leituras.salmo[0].referencia})\n`
-      content += `R. ${leituras.salmo[0].refrao}\n\n`
-      content += `${leituras.salmo[0].texto}\n\n`
-    }
-
-    // Segunda Leitura
-    if (leituras?.segundaLeitura && leituras.segundaLeitura.length > 0) {
-      content += `📜 SEGUNDA LEITURA (${leituras.segundaLeitura[0].referencia})\n`
-      if (leituras.segundaLeitura[0].titulo) {
-        content += `${leituras.segundaLeitura[0].titulo}\n\n`
-      }
-      content += `${leituras.segundaLeitura[0].texto}\n`
-      content += `— Palavra do Senhor.\n— Graças a Deus.\n\n`
-    }
-
-    // Evangelho
-    if (leituras?.evangelho && leituras.evangelho.length > 0) {
-      content += `✝️ EVANGELHO (${leituras.evangelho[0].referencia})\n`
-      if (leituras.evangelho[0].titulo) {
-        content += `${leituras.evangelho[0].titulo}\n\n`
-      }
-      content += `${leituras.evangelho[0].texto}\n`
-      content += `— Palavra da Salvação.\n— Glória a vós, Senhor.\n\n`
-    }
+    lectioData.sections.forEach((section) => {
+      content += `*${section.title}*\n`
+      // Remove HTML tags and replace <br> with newlines for plain text copy
+      const plainTextContent = section.content
+        .replace(/<[^>]*>/g, "")
+        .replace(/&nbsp;/g, " ")
+        .replace(/<br\s*\/?>/g, "\n")
+        .trim()
+      content += `${plainTextContent}\n\n`
+    })
 
     return content
   }
@@ -330,15 +185,15 @@ export default function LiturgiaPage() {
   // Função universal de compartilhamento
   const handleUniversalShare = async () => {
     const content = getCompleteContent()
-    const finalContent = `${content}\n📱 Acesse: www.liturgiadiaria.top`
+    const finalContent = `${content}\n🙏 Acesse: www.liturgiadiaria.top/lectio`
 
     // Verificar se o navegador suporta a Web Share API
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Liturgia de ${formatDateTitle(selectedDate)}`,
+          title: `Lectio Divina de ${format(selectedDate, "dd 'de' MMMM yyyy", { locale: ptBR })}`,
           text: finalContent,
-          url: "https://liturgiadiaria.top",
+          url: "https://liturgiadiaria.top/lectio",
         })
       } catch (error) {
         console.log("Compartilhamento cancelado ou erro:", error)
@@ -371,25 +226,6 @@ export default function LiturgiaPage() {
     }
   }
 
-  const processLeituras = () => {
-    let leituras
-    if (!liturgiaData?.leituras) return null
-
-    if (typeof liturgiaData.leituras === "string") {
-      try {
-        leituras = JSON.parse(liturgiaData.leituras)
-      } catch {
-        return null
-      }
-    } else {
-      leituras = liturgiaData.leituras
-    }
-
-    return leituras
-  }
-
-  const leituras = processLeituras()
-
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
       <style jsx>{`
@@ -399,8 +235,14 @@ export default function LiturgiaPage() {
           font-weight: normal;
           margin: 0 2px;
         }
-        .formatted-text {
-          line-height: 1.8;
+        .formatted-text :global(p) {
+          margin-bottom: 1em;
+        }
+        .formatted-text :global(h3) {
+          font-weight: bold;
+          margin-top: 1.5em;
+          margin-bottom: 0.5em;
+          color: #6a1b9a; /* Purple color for section titles */
         }
         @media print {
           .no-print {
@@ -410,9 +252,9 @@ export default function LiturgiaPage() {
         /* Calendar dark mode styles */
         .${isDarkMode ? "dark-calendar" : ""} .rdp {
           --rdp-cell-size: 40px;
-          --rdp-accent-color: #ec0909;
+          --rdp-accent-color: #6a1b9a; /* Purple accent */
           --rdp-background-color: ${isDarkMode ? "#1f2937" : "#ffffff"};
-          --rdp-accent-color-dark: #dc2626;
+          --rdp-accent-color-dark: #4a126b;
           color: ${isDarkMode ? "#ffffff" : "#000000"};
         }
 
@@ -425,7 +267,7 @@ export default function LiturgiaPage() {
         }
 
         .${isDarkMode ? "dark-calendar" : ""} .rdp-day_selected {
-          background-color: #ec0909 !important;
+          background-color: #6a1b9a !important; /* Purple selected day */
           color: white !important;
         }
 
@@ -446,8 +288,8 @@ export default function LiturgiaPage() {
         }
 
         .${isDarkMode ? "dark-calendar" : ""} .rdp-day_today {
-          background-color: ${isDarkMode ? "#ffffff" : "#ec0909"} !important;
-          color: ${isDarkMode ? "#ec0909" : "#ffffff"} !important;
+          background-color: ${isDarkMode ? "#ffffff" : "#6a1b9a"} !important;
+          color: ${isDarkMode ? "#6a1b9a" : "#ffffff"} !important;
           font-weight: bold;
         }
       `}</style>
@@ -459,7 +301,7 @@ export default function LiturgiaPage() {
             onClick={toggleAutoScroll}
             className={`w-14 h-14 rounded-full shadow-lg transition-all duration-300 ${
               isAutoScroll
-                ? "bg-red-600 hover:bg-red-700 text-white"
+                ? "bg-purple-600 hover:bg-purple-700 text-white"
                 : isDarkMode
                   ? "bg-gray-800 hover:bg-gray-700 text-white border border-gray-600"
                   : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
@@ -484,10 +326,10 @@ export default function LiturgiaPage() {
                     onChange={(e) => setScrollSpeed(Number(e.target.value))}
                     className="w-20 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                     style={{
-                      background: `linear-gradient(to right, #ec0909 0%, #ec0909 ${((scrollSpeed - 0.5) / 2.5) * 100}%, #d1d5db ${((scrollSpeed - 0.5) / 2.5) * 100}%, #d1d5db 100%)`,
+                      background: `linear-gradient(to right, #6a1b9a 0%, #6a1b9a ${((scrollSpeed - 0.5) / 2.5) * 100}%, #d1d5db ${((scrollSpeed - 0.5) / 2.5) * 100}%, #d1d5db 100%)`,
                     }}
                   />
-                  <span className="text-xs font-bold text-red-600">{scrollSpeed}x</span>
+                  <span className="text-xs font-bold text-purple-600">{scrollSpeed}x</span>
                 </div>
               </div>
             </div>
@@ -548,12 +390,12 @@ export default function LiturgiaPage() {
           {/* Título Principal - Centralizado */}
           <div className="text-center">
             <h1 className={`text-3xl font-bold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-              Liturgia Diária - {format(selectedDate, "dd 'de' MMMM yyyy", { locale: ptBR })}
+              Lectio Divina - {format(selectedDate, "dd 'de' MMMM yyyy", { locale: ptBR })}
             </h1>
-            {liturgiaData?.liturgia && (
+            {lectioData?.evangelhoTitle && (
               <div className="mt-2">
                 <h2 className={`text-lg ${isDarkMode ? "text-gray-200" : "text-muted-foreground"}`}>
-                  {liturgiaData.liturgia}
+                  {lectioData.evangelhoTitle}
                 </h2>
               </div>
             )}
@@ -567,12 +409,7 @@ export default function LiturgiaPage() {
                   <DayPicker
                     mode="single"
                     selected={selectedDate}
-                    onSelect={(date) => {
-                      if (date) {
-                        setSelectedDate(date)
-                        setShowCalendar(false)
-                      }
-                    }}
+                    onSelect={handleDateChange}
                     locale={ptBR}
                     className="rdp"
                   />
@@ -582,126 +419,49 @@ export default function LiturgiaPage() {
           )}
         </div>
 
+        {/* Navegação de Dias */}
+        <div className="flex justify-between mb-6 no-print">
+          <Button
+            variant="outline"
+            onClick={() => navigateDate(-1)}
+            className={`flex items-center gap-2 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white hover:bg-gray-600 hover:text-white" : ""}`}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Dia anterior
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigateDate(1)}
+            className={`flex items-center gap-2 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white hover:bg-gray-600 hover:text-white" : ""}`}
+          >
+            Próximo dia
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+
         {loading ? (
           <Card className={isDarkMode ? "bg-gray-800 border-gray-700" : ""}>
             <CardContent className={isDarkMode ? "text-white" : "text-gray-900"}>
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-                <p className={isDarkMode ? "text-white" : "text-gray-900"}>Carregando liturgia...</p>
+                <p className={isDarkMode ? "text-white" : "text-gray-900"}>Carregando Lectio Divina...</p>
               </div>
             </CardContent>
           </Card>
-        ) : liturgiaData ? (
+        ) : lectioData ? (
           <div className="space-y-6" style={{ fontSize: `${fontSize}px` }}>
-            {/* Antífona de Entrada */}
-            {liturgiaData.antifonas?.entrada && (
-              <Card className={isDarkMode ? "bg-gray-800 border-gray-700" : ""}>
+            {lectioData.sections.map((section, index) => (
+              <Card key={index} className={isDarkMode ? "bg-gray-800 border-gray-700" : ""}>
                 <CardHeader>
-                  <CardTitle style={{ color: "#ec0909" }} className="text-lg">
-                    Antífona de Entrada
+                  <CardTitle style={{ color: "#6a1b9a" }} className="text-lg">
+                    {section.title}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className={isDarkMode ? "text-white" : "text-gray-900"}>
-                  {formatVerses(liturgiaData.antifonas.entrada)}
+                <CardContent className={`formatted-text ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                  <div dangerouslySetInnerHTML={{ __html: section.content }} />
                 </CardContent>
               </Card>
-            )}
-
-            {/* Oração do Dia */}
-            {liturgiaData.oracoes?.coleta && (
-              <Card className={isDarkMode ? "bg-gray-800 border-gray-700" : ""}>
-                <CardHeader>
-                  <CardTitle style={{ color: "#ec0909" }} className="text-lg">
-                    Oração do Dia (Coleta)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className={isDarkMode ? "text-white" : "text-gray-900"}>
-                  {formatVerses(liturgiaData.oracoes.coleta)}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Primeira Leitura */}
-            {leituras?.primeiraLeitura && leituras.primeiraLeitura.length > 0 && (
-              <Card className={isDarkMode ? "bg-gray-800 border-gray-700" : ""}>
-                <CardHeader>
-                  <CardTitle style={{ color: "#ec0909" }} className="text-lg">
-                    Primeira Leitura ({leituras.primeiraLeitura[0].referencia})
-                  </CardTitle>
-                  <p className={`text-sm font-medium italic ${isDarkMode ? "text-gray-200" : "text-gray-600"}`}>
-                    {leituras.primeiraLeitura[0].titulo}
-                  </p>
-                </CardHeader>
-                <CardContent className={isDarkMode ? "text-white" : "text-gray-900"}>
-                  {formatVerses(leituras.primeiraLeitura[0].texto)}
-                  <p className={`mt-4 font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    — Palavra do Senhor.
-                  </p>
-                  <p className={`text-sm italic ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>— Graças a Deus.</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Salmo Responsorial */}
-            {leituras?.salmo && leituras.salmo.length > 0 && (
-              <Card className={isDarkMode ? "bg-gray-800 border-gray-700" : ""}>
-                <CardHeader>
-                  <CardTitle style={{ color: "#ec0909" }} className="text-lg">
-                    Salmo Responsorial ({leituras.salmo[0].referencia})
-                  </CardTitle>
-                  <p className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                    R. {leituras.salmo[0].refrao}
-                  </p>
-                </CardHeader>
-                <CardContent className={isDarkMode ? "text-white" : "text-gray-900"}>
-                  {formatVerses(leituras.salmo[0].texto)}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Segunda Leitura */}
-            {leituras?.segundaLeitura && leituras.segundaLeitura.length > 0 && (
-              <Card className={isDarkMode ? "bg-gray-800 border-gray-700" : ""}>
-                <CardHeader>
-                  <CardTitle style={{ color: "#ec0909" }} className="text-lg">
-                    Segunda Leitura ({leituras.segundaLeitura[0].referencia})
-                  </CardTitle>
-                  <p className={`text-sm font-medium italic ${isDarkMode ? "text-gray-200" : "text-gray-600"}`}>
-                    {leituras.segundaLeitura[0].titulo}
-                  </p>
-                </CardHeader>
-                <CardContent className={isDarkMode ? "text-white" : "text-gray-900"}>
-                  {formatVerses(leituras.segundaLeitura[0].texto)}
-                  <p className={`mt-4 font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    — Palavra do Senhor.
-                  </p>
-                  <p className={`text-sm italic ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>— Graças a Deus.</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Evangelho */}
-            {leituras?.evangelho && leituras.evangelho.length > 0 && (
-              <Card className={isDarkMode ? "bg-gray-800 border-gray-700" : ""}>
-                <CardHeader>
-                  <CardTitle style={{ color: "#ec0909" }} className="text-lg">
-                    Evangelho do Dia ({leituras.evangelho[0].referencia})
-                  </CardTitle>
-                  <p className={`text-sm font-medium italic ${isDarkMode ? "text-gray-200" : "text-gray-600"}`}>
-                    {leituras.evangelho[0].titulo}
-                  </p>
-                </CardHeader>
-                <CardContent className={isDarkMode ? "text-white" : "text-gray-900"}>
-                  {formatVerses(leituras.evangelho[0].texto)}
-                  <p className={`mt-4 font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    — Palavra da Salvação.
-                  </p>
-                  <p className={`text-sm italic ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                    — Glória a vós, Senhor.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+            ))}
 
             {/* Botões de Compartilhamento - Ocultos durante auto-scroll */}
             {!isAutoScroll && (
@@ -746,7 +506,7 @@ export default function LiturgiaPage() {
                     asChild
                   >
                     <a
-                      href="https://link.liturgiadiaria.top/facebook-liturgiadadiaria"
+                      href="https://link.liturgiadiaria.top/facebook-liturgiadiaria"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -840,8 +600,6 @@ export default function LiturgiaPage() {
                     </a>
                   </div>
 
-                  {/* Texto para anunciantes */}
-
                   {/* Espaço para banner adicional 300x250 */}
                   <div
                     className="mt-4 mx-auto"
@@ -871,8 +629,11 @@ export default function LiturgiaPage() {
             <CardContent className={isDarkMode ? "text-white" : "text-gray-900"}>
               <div className="text-center">
                 <p className={isDarkMode ? "text-white" : "text-gray-900"}>
-                  Nenhuma liturgia encontrada para esta data.
+                  Nenhuma Lectio Divina encontrada para esta data.
                 </p>
+                {error && (
+                  <p className={`text-sm mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Erro: {error}</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -883,15 +644,8 @@ export default function LiturgiaPage() {
           <Card className={`mt-8 ${isDarkMode ? "bg-gray-800 border-gray-700" : ""}`}>
             <CardContent className={isDarkMode ? "text-white" : "text-gray-900"}>
               <div className="text-center text-sm text-gray-600">
-                {error && (
-                  <div className="mb-3 p-3 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
-                    <p className="font-medium">Aviso:</p>
-                    <p>{error}</p>
-                    <p className="text-xs mt-1">Exibindo dados de exemplo.</p>
-                  </div>
-                )}
-
                 <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}>
+                  <p className="text-xs text-gray-400">Fonte: aliturgia.com</p>
                   <p className="text-xs text-gray-400">© 2025 Liturgia Diária - Todos os direitos reservados</p>
                 </div>
               </div>
@@ -907,7 +661,7 @@ export default function LiturgiaPage() {
           height: 16px;
           width: 16px;
           border-radius: 50%;
-          background: #ec0909;
+          background: #6a1b9a; /* Purple thumb */
           cursor: pointer;
           border: 2px solid #ffffff;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -917,7 +671,7 @@ export default function LiturgiaPage() {
           height: 16px;
           width: 16px;
           border-radius: 50%;
-          background: #ec0909;
+          background: #6a1b9a; /* Purple thumb */
           cursor: pointer;
           border: 2px solid #ffffff;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);

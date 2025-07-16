@@ -115,7 +115,8 @@ margin: auto;
 }  </style></head><body>  <main>    <h1 id=\"titulo\">Carregando...</h1>    <div id="nav-botoes">
 <button onclick="navegar(1)" id="anterior">&larr; Dia anterior</button>
 <button onclick="navegar(-1)" id="proximo">Próximo dia &rarr;</button>
-</div>    <div id=\"evangelho\">Carregando...</div>    <div style=\"margin-top: 1.5rem; text-align: center\">      <button onclick="compartilhar()">Compartilhar</button>    </div>    <div class=\"social-links\">      <p>Siga nossas redes sociais:</p>      <p>        <a href=\"https://link.liturgiadiaria.top/telegram-liturgiadiariachatbot\" target=\"_blank\" rel=\"noopener noreferrer\">Telegram</a> |        <a href=\"https://link.liturgiadiaria.top/youtube-liturgiadadiaria\" target=\"_blank\" rel=\"noopener noreferrer\">YouTube</a> |        <a href=\"https://link.liturgiadiaria.top/instagram-liturgiadadiaria\" target=\"_blank\" rel=\"noopener noreferrer\">Instagram</a> |        <a href=\"https://link.liturgiadiaria.top/whatsapp-canal-liturgia\" target=\"_blank\" rel=\"noopener noreferrer\">WhatsApp</a> |        <a href=\"https://link.liturgiadiaria.top/facebook-liturgiadiaria\" target=\"_blank\" rel=\"noopener noreferrer\">Facebook</a>      </p>    </div>    <div class=\"banner-container\">      <a href=\"https://link.liturgiadiaria.top/ofertas-exclusivas-tecinova\" target=\"_blank\" rel=\"noopener noreferrer\">        <img src=\"https://liturgiadiaria.top/banner-ofertas-exclusivas.webp\" alt=\"Confira ofertas exclusivas\" />      </a>    </div>    <footer>      Fonte: aliturgia.com<br>      <a href=\"https://liturgiadiaria.top/\" target=\"_blank\" rel=\"noopener noreferrer\">&copy; 2025 Liturgia Diária - Todos os direitos reservados</a>    </footer>  </main>  <script>    let indexAtual = 0;    let postsSummary = [];    let currentPostContent = null;    let loadingSummary = true;    let loadingContent = false;    let error = null;    const PROXY_URL = "https://api.allorigins.win/get?url=";    const FEED_URL = "https://aliturgia.com/feed/";
+</div>    <div id=\"evangelho\">Carregando...</div>    <div style=\"margin-top: 1.5rem; text-align: center\">      <button onclick="compartilhar()">Compartilhar</button>    </div>    <div class=\"social-links\">      <p>Siga nossas redes sociais:</p>      <p>        <a href=\"https://link.liturgiadiaria.top/telegram-liturgiadiariachatbot\" target=\"_blank\" rel=\"noopener noreferrer\">Telegram</a> |        <a href=\"https://link.liturgiadiaria.top/youtube-liturgiadadiaria\" target=\"_blank\" rel=\"noopener noreferrer\">YouTube</a> |        <a href=\"https://link.liturgiadiaria.top/instagram-liturgiadadiaria\" target=\"_blank\" rel=\"noopener noreferrer\">Instagram</a> |        <a href=\"https://link.liturgiadiaria.top/whatsapp-canal-liturgia\" target=\"_blank\" rel=\"noopener noreferrer\">WhatsApp</a> |        <a href=\"https://link.liturgiadiaria.top/facebook-liturgiadiaria\" target=\"_blank\" rel=\"noopener noreferrer\">Facebook</a>      </p>    </div>    <div class=\"banner-container\">      <a href=\"https://link.liturgiadiaria.top/ofertas-exclusivas-tecinova\" target=\"_blank\" rel=\"noopener noreferrer\">        <img src=\"https://liturgiadiaria.top/banner-ofertas-exclusivas.webp\" alt=\"Confira ofertas exclusivas\" />      </a>    </div>    <footer>      Fonte: aliturgia.com<br>      <a href=\"https://liturgiadiaria.top/\" target=\"_blank\" rel=\"noopener noreferrer\">&copy; 2025 Liturgia Diária - Todos os direitos reservados</a>    </footer>  </main>  <script>    let indexAtual = 0;    let postsSummary = [];    let currentPostContent = null;    let loadingSummary = true;    let loadingContent = false;    let error = null;    const PROXY_URL = "https://api.allorigins.win/get?url=";
+    const FEED_URL = "https://aliturgia.com/feed/";
     const CACHE_KEY_SUMMARY = "lectio_rss_summary";
     const CACHE_KEY_PREFIX_CONTENT = "lectio_post_content_";
     const CACHE_EXPIRATION_SUMMARY_MS = 60 * 60 * 1000;
@@ -328,7 +329,7 @@ margin: auto;
           } else if (/^Compromisso Semanal/i.test(textContent)) {
             shareableText += "📌 Compromisso Semanal\\n\\n";
           } else {
-            shareableText += \` ** \${textContent}**\\n\\n\`;
+            shareableText += \` ** \${textContent}**\\\\n\\\\n\`;
           }
         } else if (element.tagName === "P") {
           const clonedElement = element.cloneNode(true)
@@ -338,13 +339,13 @@ margin: auto;
           })
           shareableText += clonedElement.textContent?.trim() + "\\n\\n"
         } else if (element.tagName === "STRONG") {
-          shareableText += \`**\${textContent}**\\n\\n\`;
+          shareableText += \`**\${textContent}**\\\\n\\\\n\`;
         }
       })
 
       shareableText = shareableText.replace(/\\n\\n+/g, '\\n\\n').trim()
 
-      const finalShareText = \`📖 \${titulo}\\n\\n\${shareableText}\\n\\n📱 Acesse: \${location.href}\`
+      const finalShareText = \`📖 \${titulo}\\\\n\\\\n\${shareableText}\\\\n\\\\n📱 Acesse: \${location.href}\`
 
       const fallback = () => {
         navigator.clipboard

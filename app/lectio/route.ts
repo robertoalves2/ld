@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 export async function GET() {
-  const htmlContent = `<!DOCTYPE html><html lang=\"pt-BR\"><head><meta charset=\"UTF-8\"><meta name=\"description\" content=\"Lectio Divina do Evangelho do Dia. Ideal para orações diárias e reflexão católica.\"><meta name=\"keywords\" content=\"liturgia diária, liturgia da diária, evangelho do dia, evangelho de hoje, liturgia de hoje, evangelho dia, evangelho, lectio divina, evangelho do dia de hoje, o evangelho de hoje, liturgia diaria hoje, liturgia diária hoje, liturgia diaria de hoje, divina lectio, divino lectio, evangelho de hoje do dia, evangelho dia de hoje, liturgia do dia de hoje, evangelho do dia comentado, liturgia diária comentada de hoje, evangelho no lar, liturgia do ordinário, liturgia diaria comentada, o evangelho do dia, lectio divina de hoje, evangelho hoje, evangelho do lar\"><meta name=\"author\" content=\"Liturgia Diária\"><title>Evangelho do Dia e Lectio Divina - Liturgia Diária</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link rel=\"canonical\" href=\"https://liturgiadiaria.top/\" /><link rel=\"sitemap\" type=\"application/xml\" title=\"Sitemap\" href=\"/sitemap.xml\" /><script defer data-domain=\"liturgiadiaria.top\" src=\"https://plausible.io/js/plausible.js\"></script><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap\" rel=\"stylesheet\"><style>
+  const htmlContent = `<!DOCTYPE html><html lang=\"pt-BR\"><head><meta charset=\"UTF-8\"><meta name=\"description\" content=\"Lectio Divina do Evangelho do Dia. Ideal para orações diárias e reflexão católica.\"><meta name=\"keywords\" content=\"liturgia diária, liturgia da diária, evangelho do dia, evangelho de hoje, liturgia de hoje, evangelho dia, evangelho, lectio divina, evangelho do dia de hoje, o evangelho de hoje, liturgia diaria hoje, liturgia diária hoje, liturgia diaria de hoje, divina lectio, divino lectio, evangelho de hoje do dia, evangelho dia de hoje, liturgia do dia de hoje, evangelho do dia comentado, liturgia diária comentada, o evangelho do dia, lectio divina de hoje, evangelho hoje, evangelho do lar\"><meta name=\"author\" content=\"Liturgia Diária\"><title>Evangelho do Dia e Lectio Divina - Liturgia Diária</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link rel=\"canonical\" href=\"https://liturgiadiaria.top/\" /><link rel=\"sitemap\" type=\"application/xml\" title=\"Sitemap\" href=\"/sitemap.xml\" /><script defer data-domain=\"liturgiadiaria.top\" src=\"https://plausible.io/js/plausible.js\"></script><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap\" rel=\"stylesheet\"><style>
 :root {
 --primary: #6a1b9a;
 --background-light: #f4f4f4;
@@ -142,8 +142,9 @@ margin: auto;
       } else {
         evangelhoEl.innerHTML = "<p>Nenhum conteúdo disponível.</p>";
       }
-      anteriorBtn.disabled = indexAtual >= postsSummary.length - 1 || loadingSummary || loadingContent;
-      proximoBtn.disabled = indexAtual === 0 || loadingSummary || loadingContent;
+      // Ajuste na lógica de desativação dos botões
+      anteriorBtn.disabled = !currentPostContent || indexAtual >= postsSummary.length - 1 || loadingSummary || loadingContent;
+      proximoBtn.disabled = !currentPostContent || indexAtual === 0 || loadingSummary || loadingContent;
       compartilharBtn.disabled = !currentPostContent;
     }
 

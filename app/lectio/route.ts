@@ -329,7 +329,7 @@ margin: auto;
           } else if (/^Compromisso Semanal/i.test(textContent)) {
             shareableText += "📌 Compromisso Semanal\\n\\n";
           } else {
-            shareableText += \` ** \${textContent}**\\\\n\\\\n\`;
+            shareableText += \` ** \${textContent}**\\n\\n\`;
           }
         } else if (element.tagName === "P") {
           const clonedElement = element.cloneNode(true)
@@ -339,13 +339,13 @@ margin: auto;
           })
           shareableText += clonedElement.textContent?.trim() + "\\n\\n"
         } else if (element.tagName === "STRONG") {
-          shareableText += \`**\${textContent}**\\\\n\\\\n\`;
+          shareableText += \`**\${textContent}**\\n\\n\`;
         }
       })
 
       shareableText = shareableText.replace(/\\n\\n+/g, '\\n\\n').trim()
 
-      const finalShareText = \`📖 \${titulo}\\\\n\\\\n\${shareableText}\\\\n\\\\n📱 Acesse: \${location.href}\`
+      const finalShareText = \`📖 \${titulo}\\n\\n\${shareableText}\\n\\n📱 Acesse: \${location.href}\`
 
       const fallback = () => {
         navigator.clipboard

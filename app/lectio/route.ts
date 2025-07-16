@@ -114,7 +114,6 @@ box-shadow: 0 1px 2px 0 var(--shadow-light), 0 1px 1px -1px var(--shadow-light);
 margin: auto;
 }  </style></head><body>  <main>    <h1 id=\"titulo\">Carregando...</h1>    <div id="nav-botoes">
 <button onclick="navegar(1)" id="anterior">&larr; Dia anterior</button>
-<button onclick="navegar(-1)" id="proximo">Próximo dia &rarr;</button>
 </div>    <div id=\"evangelho\">Carregando...</div>    <div style=\"margin-top: 1.5rem; text-align: center\">      <button onclick="compartilhar()">Compartilhar</button>    </div>    <div class=\"social-links\">      <p>Siga nossas redes sociais:</p>      <p>        <a href=\"https://link.liturgiadiaria.top/telegram-liturgiadiariachatbot\" target=\"_blank\" rel=\"noopener noreferrer\">Telegram</a> |        <a href=\"https://link.liturgiadiaria.top/youtube-liturgiadadiaria\" target=\"_blank\" rel=\"noopener noreferrer\">YouTube</a> |        <a href=\"https://link.liturgiadiaria.top/instagram-liturgiadadiaria\" target=\"_blank\" rel=\"noopener noreferrer\">Instagram</a> |        <a href=\"https://link.liturgiadiaria.top/whatsapp-canal-liturgia\" target=\"_blank\" rel=\"noopener noreferrer\">WhatsApp</a> |        <a href=\"https://link.liturgiadiaria.top/facebook-liturgiadiaria\" target=\"_blank\" rel=\"noopener noreferrer\">Facebook</a>      </p>    </div>    <div class=\"banner-container\">      <a href=\"https://link.liturgiadiaria.top/ofertas-exclusivas-tecinova\" target=\"_blank\" rel=\"noopener noreferrer\">        <img src=\"https://liturgiadiaria.top/banner-ofertas-exclusivas.webp\" alt=\"Confira ofertas exclusivas\" />      </a>    </div>    <footer>      Fonte: aliturgia.com<br>      <a href=\"https://liturgiadiaria.top/\" target=\"_blank\" rel=\"noopener noreferrer\">&copy; 2025 Liturgia Diária - Todos os direitos reservados</a>    </footer>  </main>  <script>    let indexAtual = 0;    let postsSummary = [];    let currentPostContent = null;    let loadingSummary = true;    let loadingContent = false;    let error = null;    const PROXY_URL = "https://api.allorigins.win/get?url=";
     const FEED_URL = "https://aliturgia.com/feed/";
     const CACHE_KEY_SUMMARY = "lectio_rss_summary";
@@ -123,9 +122,8 @@ margin: auto;
     const CACHE_EXPIRATION_CONTENT_MS = 24 * 60 * 60 * 1000;
     const tituloEl = document.getElementById("titulo");
     const evangelhoEl = document.getElementById("evangelho");
-    const anteriorBtn = document.getElementById("anterior");
+    const anteriorBtn = document.getElementById("anterior"); // Renomeado de proximoBtn
     const compartilharBtn = document.querySelector("button[onclick=\\'compartilhar()\\']");
-    const proximoBtn = document.getElementById("proximo");
 
     function updateUI() {
       console.log("updateUI called.");
@@ -142,9 +140,8 @@ margin: auto;
       } else {
         evangelhoEl.innerHTML = "<p>Nenhum conteúdo disponível.</p>";
       }
-      // Ajuste na lógica de desativação dos botões
-      anteriorBtn.disabled = !currentPostContent || indexAtual >= postsSummary.length - 1 || loadingSummary || loadingContent;
-      proximoBtn.disabled = !currentPostContent || indexAtual === 0 || loadingSummary || loadingContent;
+      // Lógica para o botão "Dia anterior"
+      anteriorBtn.disabled = indexAtual >= postsSummary.length - 1 || loadingSummary || loadingContent;
       compartilharBtn.disabled = !currentPostContent;
     }
 
@@ -317,7 +314,7 @@ margin: auto;
         textContent = textContent.replace(/(\\d+)\\s*/g, '$1 ');
 
         if (element.tagName === 'H3') {
-          if (/^Evangelho/i.test(textContent)) { // Assuming Evangelho is also an H3
+          if (/^Evangelho/i.test(textContent)) {
             shareableText += 'Evangelho ' + textContent + '\\n\\n';
           } else if (/^Compreender a Palavra/i.test(textContent)) {
             shareableText += "💡 Compreender a Palavra\\n\\n";

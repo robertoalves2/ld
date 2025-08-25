@@ -840,28 +840,21 @@ export default function LiturgiaPage() {
                     </a>
                   </div>
 
-                  {/* Texto para anunciantes */}
-
-                  {/* Espaço para banner adicional 300x250 */}
-                  <div
-                    className="mt-4 mx-auto"
-                    style={{
-                      width: "300px",
-                      height: "250px",
-                      border: "2px dashed #ccc",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <a
-                      href="mailto:contato@liturgiadiaria.top"
-                      className={`text-sm font-bold text-center ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}
-                      style={{ lineHeight: "1.5" }}
-                    >
-                      {"Anuncie aqui!\nSeu banner 300x250"}
-                    </a>
-                  </div>
+                  {/* Espaços reservados para futuros banners de clientes */}
+                  {/* 
+                    Quando houver clientes interessados em anunciar, 
+                    adicionar os banners 300x250 abaixo do banner atual:
+                    
+                    <div className="mt-4 mx-auto" style={{ width: "300px", height: "250px" }}>
+                      <a href="URL_DO_CLIENTE" target="_blank" rel="noopener noreferrer">
+                        <img 
+                          src="/banner-cliente-1.webp" 
+                          alt="Descrição do anúncio do cliente"
+                          className="w-full h-full object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                        />
+                      </a>
+                    </div>
+                  */}
                 </CardContent>
               </Card>
             )}

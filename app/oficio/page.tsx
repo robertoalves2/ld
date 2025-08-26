@@ -226,8 +226,8 @@ export default async function OficioPage() {
               Ofício Divino - Liturgia das Horas
             </h1>
             <p className="text-lg text-center text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Acompanhe diariamente as orações do Ofício Divino e da Liturgia das Horas. Fortaleça sua vida espiritual
-              com as orações oficiais da Igreja Católica.
+              Acompanhe diariamente as orações do Ofício Divino - Liturgia das Horas. Fortaleça sua vida espiritual com
+              as orações oficiais da Igreja Católica.
             </p>
           </header>
 

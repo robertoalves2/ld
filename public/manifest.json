@@ -9,6 +9,7 @@
   "orientation": "portrait-primary",
   "categories": ["religion", "lifestyle", "education"],
   "lang": "pt-BR",
+  "scope": "/",
   "icons": [
     {
       "src": "/liturgia-icon.webp",
@@ -59,6 +60,42 @@
       "short_name": "Hoje",
       "description": "Ver liturgia de hoje",
       "url": "/",
+      "icons": [
+        {
+          "src": "/liturgia-icon.webp",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Ofício Divino",
+      "short_name": "Ofício",
+      "description": "Liturgia das Horas",
+      "url": "/oficio",
+      "icons": [
+        {
+          "src": "/liturgia-icon.webp",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Lectio Divina",
+      "short_name": "Lectio",
+      "description": "Evangelho e reflexão",
+      "url": "/lectio",
+      "icons": [
+        {
+          "src": "/liturgia-icon.webp",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Leituras do Dia",
+      "short_name": "Leituras",
+      "description": "Todas as leituras",
+      "url": "/leituras",
       "icons": [
         {
           "src": "/liturgia-icon.webp",

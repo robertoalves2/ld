@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Share2, Minus, Plus, Play, Pause, Check, Calendar } from "lucide-react"
+import { Share2, Minus, Plus, Play, Pause, Check, Calendar, Volume2 } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { DayPicker } from "react-day-picker"
-import { Button } from "@/components/ui/button" // Ensure Button is imported
+import { Button } from "@/components/ui/button"
 import { Facebook, MessageSquare, Send, Instagram, Youtube } from "lucide-react"
 
 interface LiturgiaData {
@@ -44,8 +44,10 @@ export default function LiturgiaPage() {
   const [copied, setCopied] = useState(false)
 
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const [isAutoScroll, setIsAutoScroll] = useState(false)
-  const [scrollSpeed, setScrollSpeed] = useState(1)
+  const [isReading, setIsReading] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const [readingProgress, setReadingProgress] = useState(0)
+  const speechRef = useRef<SpeechSynthesisUtterance | null>(null)
 
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -63,30 +65,13 @@ export default function LiturgiaPage() {
     return () => clearInterval(interval)
   }, [])
 
-  // Auto scroll functionality
+  // Verificar se há leitura em andamento ao carregar a página
   useEffect(() => {
-    if (isAutoScroll) {
-      scrollIntervalRef.current = setInterval(() => {
-        window.scrollBy(0, scrollSpeed)
-
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
-          setTimeout(() => {
-            window.scrollTo({ top: 0, behavior: "smooth" })
-          }, 2000)
-        }
-      }, 50)
-    } else {
-      if (scrollIntervalRef.current) {
-        clearInterval(scrollIntervalRef.current)
-      }
+    if (speechSynthesis.speaking) {
+      setIsReading(true)
+      setIsPaused(speechSynthesis.paused)
     }
-
-    return () => {
-      if (scrollIntervalRef.current) {
-        clearInterval(scrollIntervalRef.current)
-      }
-    }
-  }, [isAutoScroll, scrollSpeed])
+  }, [])
 
   // Fullscreen functionality
   const toggleFullscreen = async () => {
@@ -115,19 +100,6 @@ export default function LiturgiaPage() {
     document.addEventListener("fullscreenchange", handleFullscreenChange)
     return () => document.removeEventListener("fullscreenchange", handleFullscreenChange)
   }, [])
-
-  const toggleAutoScroll = () => {
-    const newAutoScrollState = !isAutoScroll
-    setIsAutoScroll(newAutoScrollState)
-
-    if (newAutoScrollState && !isFullscreen) {
-      toggleFullscreen()
-    }
-  }
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode)
-  }
 
   const fetchLiturgia = async (date: Date) => {
     setLoading(true)
@@ -262,13 +234,24 @@ export default function LiturgiaPage() {
     return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
   }
 
+  const formatLiturgiaTitle = (title: string | undefined) => {
+    if (!title) return ""
+
+    return title
+      .replace(/^2ª feira/, "Segunda-feira")
+      .replace(/^3ª feira/, "Terça-feira")
+      .replace(/^4ª feira/, "Quarta-feira")
+      .replace(/^5ª feira/, "Quinta-feira")
+      .replace(/^6ª feira/, "Sexta-feira")
+  }
+
   const getCompleteContent = () => {
     const dateStr = formatDateTitle(selectedDate)
 
     // Código original para outras datas
     if (!liturgiaData) return ""
 
-    const liturgiaStr = liturgiaData.liturgia || ""
+    const liturgiaStr = formatLiturgiaTitle(liturgiaData.liturgia || "")
 
     let content = `📖 LITURGIA DE ${dateStr.toUpperCase()}\n`
     content += `${liturgiaStr}\n\n`
@@ -390,6 +373,190 @@ export default function LiturgiaPage() {
 
   const leituras = processLeituras()
 
+  // Função para processar o texto para leitura - MELHORADA
+  const processTextForReading = (text: string): string => {
+    return (
+      text
+        // Remove tudo que vem após um ponto final seguido de parênteses (para antífona)
+        .replace(/\.\s*$$[^)]*$$/g, ".")
+        // Remove qualquer conteúdo entre parênteses
+        .replace(/$$[^)]*$$/g, "")
+        // Remove números de versículos no início de frases (formato: 14palavra, 15palavra, etc.)
+        .replace(/(\s|^)\d+([a-zA-ZÀ-ÿ])/g, "$1$2")
+        // Remove números isolados no início de linhas
+        .replace(/^\d+\s*/gm, "")
+        // Remove números isolados entre espaços
+        .replace(/\s\d+\s/g, " ")
+        // Remove números seguidos de aspas (formato: 33"texto)
+        .replace(/\d+"/g, '"')
+        // Remove números no meio de frases (formato: palavra14palavra)
+        .replace(/([a-zA-ZÀ-ÿ])\d+([a-zA-ZÀ-ÿ])/g, "$1$2")
+        // Remove referências bíblicas (formato: 1,2 ou 23,4-5)
+        .replace(/\d+,\d+(-\d+)?\s*/g, "")
+        // Remove tags HTML
+        .replace(/<[^>]*>/g, "")
+        // Remove múltiplas quebras de linha
+        .replace(/\n\s*\n/g, "\n")
+        // Remove espaços extras
+        .replace(/\s+/g, " ")
+        // Remove pontos duplos
+        .replace(/\.+/g, ".")
+        .trim()
+    )
+  }
+
+  // Função para obter o conteúdo completo para leitura
+  const getReadingContent = (): string => {
+    if (!liturgiaData) return ""
+
+    let content = ""
+
+    // Título da liturgia (com formatação dos dias da semana)
+    if (liturgiaData.liturgia) {
+      const formattedTitle = formatLiturgiaTitle(liturgiaData.liturgia)
+      content += `${formattedTitle}. `
+      // Pequena pausa após o título
+      content += ". "
+    }
+
+    // Antífona de Entrada (sem ler o título "Antífona de Entrada")
+    if (liturgiaData.antifonas?.entrada) {
+      content += `${processTextForReading(liturgiaData.antifonas.entrada)} `
+      // Pequena pausa após a antífona
+      content += ". "
+    }
+
+    // Oração do Dia (sem "Amém")
+    if (liturgiaData.oracoes?.coleta) {
+      content += `Oremos. `
+      // Pausa após "Oremos"
+      content += ". "
+      content += `${processTextForReading(liturgiaData.oracoes.coleta)} `
+      // Pequena pausa após a oração (sem "Amém")
+      content += ". "
+    }
+
+    // Primeira Leitura (sem ler o título da seção)
+    if (leituras?.primeiraLeitura && leituras.primeiraLeitura.length > 0) {
+      if (leituras.primeiraLeitura[0].titulo) {
+        content += `${leituras.primeiraLeitura[0].titulo}. `
+      }
+      content += `${processTextForReading(leituras.primeiraLeitura[0].texto)} `
+      content += `Palavra do Senhor. `
+      // Pequena pausa após a primeira leitura
+      content += ". "
+    }
+
+    // Salmo Responsorial (ir direto ao refrão)
+    if (leituras?.salmo && leituras.salmo.length > 0) {
+      content += `${leituras.salmo[0].refrao} `
+      content += `${processTextForReading(leituras.salmo[0].texto)} `
+      // Pequena pausa após o salmo
+      content += ". "
+    }
+
+    // Segunda Leitura (sem ler o título da seção)
+    if (leituras?.segundaLeitura && leituras.segundaLeitura.length > 0) {
+      if (leituras.segundaLeitura[0].titulo) {
+        content += `${leituras.segundaLeitura[0].titulo}. `
+      }
+      content += `${processTextForReading(leituras.segundaLeitura[0].texto)} `
+      content += `Palavra do Senhor. `
+      // Pequena pausa após a segunda leitura
+      content += ". "
+    }
+
+    // Evangelho (começar direto com "Proclamação do evangelho...")
+    if (leituras?.evangelho && leituras.evangelho.length > 0) {
+      if (leituras.evangelho[0].titulo) {
+        content += `${leituras.evangelho[0].titulo}. `
+      }
+      content += `${processTextForReading(leituras.evangelho[0].texto)} `
+      content += `Palavra da Salvação. `
+      // Pequena pausa após o evangelho
+      content += ". "
+    }
+
+    return content
+  }
+
+  // Função para configurar e iniciar a leitura
+  const startReading = () => {
+    if ("speechSynthesis" in window) {
+      const content = getReadingContent()
+
+      if (content.trim()) {
+        speechSynthesis.cancel() // Cancel any ongoing speech
+
+        const utterance = new SpeechSynthesisUtterance(content)
+        speechRef.current = utterance
+
+        // Configurações da voz
+        utterance.lang = "pt-BR"
+        utterance.rate = 0.9 // Velocidade um pouco mais lenta para melhor compreensão
+        utterance.pitch = 1
+        utterance.volume = 1
+
+        // Tentar encontrar uma voz em português
+        const voices = speechSynthesis.getVoices()
+        const portugueseVoice = voices.find((voice) => voice.lang.includes("pt") || voice.lang.includes("PT"))
+        if (portugueseVoice) {
+          utterance.voice = portugueseVoice
+        }
+
+        // Event listeners
+        utterance.onstart = () => {
+          setIsReading(true)
+          setIsPaused(false)
+        }
+
+        utterance.onend = () => {
+          setIsReading(false)
+          setIsPaused(false)
+          setReadingProgress(0)
+        }
+
+        utterance.onerror = () => {
+          setIsReading(false)
+          setIsPaused(false)
+          setReadingProgress(0)
+        }
+
+        utterance.onboundary = (event) => {
+          if (event.name === "word") {
+            const progress = (event.charIndex / content.length) * 100
+            setReadingProgress(progress)
+          }
+        }
+
+        speechSynthesis.speak(utterance)
+      }
+    } else {
+      alert("Seu navegador não suporta síntese de voz.")
+    }
+  }
+
+  // Função para pausar/retomar a leitura
+  const toggleReading = () => {
+    if (speechSynthesis.speaking && !speechSynthesis.paused) {
+      speechSynthesis.pause()
+      setIsPaused(true)
+    } else if (speechSynthesis.paused) {
+      speechSynthesis.resume()
+      setIsPaused(false)
+    } else if (!isReading) {
+      startReading()
+    }
+  }
+
+  // Função para parar a leitura
+  const stopReading = () => {
+    speechSynthesis.cancel()
+    setIsReading(false)
+    setIsPaused(false)
+    setReadingProgress(0)
+  }
+
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
       <style jsx>{`
@@ -453,57 +620,81 @@ export default function LiturgiaPage() {
       `}</style>
 
       <div className="container mx-auto px-4 py-6 max-w-4xl">
-        {/* Botão Flutuante de Auto-Scroll */}
+        {/* Botão Flutuante de Áudio */}
         <div className="fixed bottom-6 right-6 z-50 no-print">
-          <Button
-            onClick={toggleAutoScroll}
-            className={`w-14 h-14 rounded-full shadow-lg transition-all duration-300 ${
-              isAutoScroll
-                ? "bg-red-600 hover:bg-red-700 text-white"
-                : isDarkMode
-                  ? "bg-gray-800 hover:bg-gray-700 text-white border border-gray-600"
-                  : "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
-            }`}
-            title={isAutoScroll ? "Parar rolagem automática" : "Iniciar rolagem automática"}
-          >
-            {isAutoScroll ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-          </Button>
-
-          {/* Controle de Velocidade Flutuante */}
-          {isAutoScroll && (
-            <div className="absolute bottom-16 right-0 mb-2">
+          <div className="flex flex-col items-end gap-2">
+            {/* Controles adicionais quando está lendo */}
+            {isReading && (
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 border border-gray-200 dark:border-gray-600">
-                <div className="flex flex-col items-center gap-2">
-                  <span className="text-xs font-medium text-gray-600 dark:text-gray-300">Velocidade</span>
-                  <input
-                    type="range"
-                    min="0.5"
-                    max="3"
-                    step="0.5"
-                    value={scrollSpeed}
-                    onChange={(e) => setScrollSpeed(Number(e.target.value))}
-                    className="w-20 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                <div className="flex flex-col items-center gap-2 min-w-[120px]">
+                  <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                    {isPaused ? "Pausado" : "Lendo..."}
+                  </span>
+
+                  {/* Barra de progresso */}
+                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                    <div
+                      className="h-1.5 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${readingProgress}%`,
+                        backgroundColor: "#DC2626",
+                      }}
+                    ></div>
+                  </div>
+
+                  {/* Botão de parar */}
+                  <Button
+                    onClick={stopReading}
+                    size="sm"
+                    variant="outline"
+                    className="w-full text-xs bg-transparent"
                     style={{
-                      background: `linear-gradient(to right, #ec0909 0%, #ec0909 ${((scrollSpeed - 0.5) / 2.5) * 100}%, #d1d5db ${((scrollSpeed - 0.5) / 2.5) * 100}%, #d1d5db 100%)`,
+                      backgroundColor: "transparent",
+                      borderColor: "#DC2626",
+                      color: "#DC2626",
                     }}
-                  />
-                  <span className="text-xs font-bold text-red-600">{scrollSpeed}x</span>
+                  >
+                    ⏹️ Parar
+                  </Button>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Botão principal com melhor contraste */}
+            <Button
+              onClick={toggleReading}
+              className={`w-14 h-14 rounded-full shadow-lg transition-all duration-300 border-2 ${
+                isReading
+                  ? "bg-red-600 hover:bg-red-700 text-white border-red-600"
+                  : isDarkMode
+                    ? "bg-gray-800 hover:bg-gray-700 text-white border-gray-600"
+                    : "bg-white hover:bg-gray-100 text-gray-800 border-gray-300 shadow-md"
+              }`}
+              title={isReading ? (isPaused ? "Continuar leitura" : "Pausar leitura") : "Ouvir liturgia"}
+            >
+              {isReading ? (
+                isPaused ? (
+                  <Play className="h-6 w-6" />
+                ) : (
+                  <Pause className="h-6 w-6" />
+                )
+              ) : (
+                <Volume2 className="h-6 w-6" />
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Header com Título e Controles */}
         <div className="mb-6">
           {/* Controles - Mobile: no topo, acima da data */}
-          {!isAutoScroll && (
+          {!isReading && (
             <div className="flex flex-col items-center gap-3 md:absolute md:top-0 md:left-0 md:flex-row md:items-start no-print mb-4 md:mb-0">
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={toggleDarkMode}
+                  onClick={() => setIsDarkMode(!isDarkMode)}
                   className={`p-2 ${isDarkMode ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
                   title={isDarkMode ? "Modo claro" : "Modo escuro"}
                 >
@@ -525,7 +716,7 @@ export default function LiturgiaPage() {
                     variant="ghost"
                     size="sm"
                     onClick={increaseFontSize}
-                    className={`w-8 h-8 p-0 ${isDarkMode ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"}`}
+                    className={`w-8 h-8 p-0 ${isDarkMode ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-white"}`}
                     title="Aumentar fonte"
                   >
                     <Plus className="h-3 w-3" />
@@ -553,14 +744,14 @@ export default function LiturgiaPage() {
             {liturgiaData?.liturgia && (
               <div className="mt-2">
                 <h2 className={`text-lg ${isDarkMode ? "text-gray-200" : "text-muted-foreground"}`}>
-                  {liturgiaData.liturgia}
+                  {formatLiturgiaTitle(liturgiaData.liturgia)}
                 </h2>
               </div>
             )}
           </div>
 
           {/* Calendário */}
-          {showCalendar && !isAutoScroll && (
+          {showCalendar && !isReading && (
             <Card className={`mt-4 no-print ${isDarkMode ? "bg-gray-800 border-gray-700" : ""}`}>
               <CardContent className="p-4">
                 <div className={`flex justify-center ${isDarkMode ? "dark-calendar" : ""}`}>
@@ -703,8 +894,8 @@ export default function LiturgiaPage() {
               </Card>
             )}
 
-            {/* Botões de Compartilhamento - Ocultos durante auto-scroll */}
-            {!isAutoScroll && (
+            {/* Botões de Compartilhamento - Ocultos durante leitura */}
+            {!isReading && (
               <Card className={`no-print ${isDarkMode ? "bg-gray-800 border-gray-700" : ""}`}>
                 <CardHeader>
                   <CardTitle className={`text-lg text-center ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -732,7 +923,7 @@ export default function LiturgiaPage() {
             )}
 
             {/* Seção de Redes Sociais */}
-            {!isAutoScroll && (
+            {!isReading && (
               <Card className={`no-print ${isDarkMode ? "bg-gray-800 border-gray-700" : ""}`}>
                 <CardHeader>
                   <CardTitle className={`text-lg text-center ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -815,7 +1006,7 @@ export default function LiturgiaPage() {
             )}
 
             {/* Seção de Publicidade */}
-            {!isAutoScroll && (
+            {!isReading && (
               <Card className={`no-print ${isDarkMode ? "bg-gray-800 border-gray-700" : ""}`}>
                 <CardHeader>
                   <CardTitle className={`text-lg text-center ${isDarkMode ? "text-white" : "text-gray-900"}`}>
@@ -871,8 +1062,8 @@ export default function LiturgiaPage() {
           </Card>
         )}
 
-        {/* Rodapé com Créditos - Oculto durante auto-scroll */}
-        {!isAutoScroll && (
+        {/* Rodapé com Créditos - Oculto durante leitura */}
+        {!isReading && (
           <Card className={`mt-8 ${isDarkMode ? "bg-gray-800 border-gray-700" : ""}`}>
             <CardContent className={isDarkMode ? "text-white" : "text-gray-900"}>
               <div className="text-center text-sm text-gray-600">
@@ -892,30 +1083,6 @@ export default function LiturgiaPage() {
           </Card>
         )}
       </div>
-
-      {/* CSS personalizado para o slider */}
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          height: 16px;
-          width: 16px;
-          border-radius: 50%;
-          background: #ec0909;
-          cursor: pointer;
-          border: 2px solid #ffffff;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .slider::-moz-range-thumb {
-          height: 16px;
-          width: 16px;
-          border-radius: 50%;
-          background: #ec0909;
-          cursor: pointer;
-          border: 2px solid #ffffff;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-      `}</style>
     </div>
   )
 }

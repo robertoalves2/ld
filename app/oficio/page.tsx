@@ -11,9 +11,48 @@ interface Post {
 }
 
 /**
- * Função para buscar e analisar os dados do feed RSS.
- * Esta função é executada no servidor (ou ambiente similar ao servidor no Next.js).
- * @returns Uma Promise que resolve para um array de objetos Post.
+ * Função para extrair texto entre tags XML
+ */
+function extractTextBetweenTags(xml: string, tagName: string): string {
+  const regex = new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, "i")
+  const match = xml.match(regex)
+  return match ? match[1].trim() : ""
+}
+
+/**
+ * Função para extrair CDATA
+ */
+function extractCDATA(text: string): string {
+  const cdataRegex = /<!\[CDATA\[([\s\S]*?)\]\]>/
+  const match = text.match(cdataRegex)
+  return match ? match[1] : text
+}
+
+/**
+ * Função para decodificar entidades HTML
+ */
+function decodeHtmlEntities(text: string): string {
+  const entities: { [key: string]: string } = {
+    "&amp;": "&",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": '"',
+    "&#039;": "'",
+    "&apos;": "'",
+    "&#8211;": "–",
+    "&#8212;": "—",
+    "&#8216;": "'",
+    "&#8217;": "'",
+    "&#8220;": '"',
+    "&#8221;": '"',
+    "&#8230;": "…",
+  }
+
+  return text.replace(/&[#\w]+;/g, (entity) => entities[entity] || entity)
+}
+
+/**
+ * Função para buscar e analisar os dados do feed RSS usando parsing manual
  */
 async function getFeedData(): Promise<{ posts: Post[]; error?: string; debugInfo?: any }> {
   const debugInfo: any = {
@@ -25,7 +64,6 @@ async function getFeedData(): Promise<{ posts: Post[]; error?: string; debugInfo
   try {
     debugInfo.steps.push("Iniciando fetch do RSS...")
 
-    // Faz a requisição ao feed RSS.
     const response = await fetch("https://liturgiadashoras.online/feed/", {
       next: { revalidate: 3600 },
       headers: {
@@ -45,35 +83,40 @@ async function getFeedData(): Promise<{ posts: Post[]; error?: string; debugInfo
     debugInfo.steps.push(`XML recebido, tamanho: ${xmlText.length} caracteres`)
     debugInfo.xmlPreview = xmlText.substring(0, 500) + "..."
 
-    // Verificar se DOMParser está disponível
-    if (typeof DOMParser === "undefined") {
-      throw new Error("DOMParser não está disponível no ambiente atual")
+    // Parsing manual do XML usando regex
+    debugInfo.steps.push("Iniciando parsing manual do XML...")
+
+    // Extrair todos os items do feed
+    const itemRegex = /<item[^>]*>([\s\S]*?)<\/item>/gi
+    const items = []
+    let match
+
+    while ((match = itemRegex.exec(xmlText)) !== null) {
+      items.push(match[1])
     }
 
-    const parser = new DOMParser()
-    const xmlDoc = parser.parseFromString(xmlText, "text/xml")
-
-    // Verificar se houve erro no parsing
-    const parserError = xmlDoc.querySelector("parsererror")
-    if (parserError) {
-      throw new Error(`Erro no parsing XML: ${parserError.textContent}`)
-    }
-
-    const items = xmlDoc.querySelectorAll("item")
     debugInfo.steps.push(`Encontrados ${items.length} items no feed`)
 
-    let posts: Post[] = Array.from(items).map((item, index) => {
-      const titleElement = item.querySelector("title")
-      const pubDateElement = item.querySelector("pubDate")
-      const contentEncodedElement = item.getElementsByTagNameNS(
-        "http://purl.org/rss/1.0/modules/content/",
-        "encoded",
-      )[0]
-      const descriptionElement = item.querySelector("description")
+    let posts: Post[] = items.map((itemXml, index) => {
+      // Extrair título
+      let title = extractTextBetweenTags(itemXml, "title")
+      title = decodeHtmlEntities(title) || `Título Indisponível ${index + 1}`
 
-      const title = titleElement?.textContent || `Título Indisponível ${index + 1}`
-      const pubDate = pubDateElement?.textContent || new Date().toISOString()
-      const content = contentEncodedElement?.textContent || descriptionElement?.textContent || "Conteúdo Indisponível"
+      // Extrair data de publicação
+      let pubDate = extractTextBetweenTags(itemXml, "pubDate")
+      if (!pubDate) {
+        pubDate = new Date().toISOString()
+      }
+
+      // Extrair conteúdo (priorizar content:encoded, depois description)
+      let content = extractTextBetweenTags(itemXml, "content:encoded")
+      if (!content) {
+        content = extractTextBetweenTags(itemXml, "description")
+      }
+
+      // Limpar CDATA se presente
+      content = extractCDATA(content)
+      content = decodeHtmlEntities(content) || "Conteúdo Indisponível"
 
       return { title, pubDate, content }
     })
@@ -81,8 +124,12 @@ async function getFeedData(): Promise<{ posts: Post[]; error?: string; debugInfo
     debugInfo.steps.push(`Posts processados: ${posts.length}`)
     debugInfo.postTitles = posts.slice(0, 5).map((p) => p.title)
 
-    // Ordena as postagens pela data de publicação, da mais recente para a mais antiga.
-    posts.sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
+    // Ordena as postagens pela data de publicação, da mais recente para a mais antiga
+    posts.sort((a, b) => {
+      const dateA = new Date(a.pubDate).getTime()
+      const dateB = new Date(b.pubDate).getTime()
+      return dateB - dateA
+    })
     debugInfo.steps.push("Posts ordenados por data")
 
     // Nova lógica de filtragem
@@ -176,6 +223,15 @@ export default async function OficioPage() {
                           <li key={index}>{title}</li>
                         ))}
                       </ul>
+                    </div>
+                  )}
+
+                  {debugInfo?.responseHeaders && (
+                    <div>
+                      <strong>Headers da resposta:</strong>
+                      <pre className="text-xs bg-gray-100 p-2 rounded mt-1 overflow-x-auto">
+                        {JSON.stringify(debugInfo.responseHeaders, null, 2)}
+                      </pre>
                     </div>
                   )}
 

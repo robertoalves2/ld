@@ -2,6 +2,51 @@ import { Suspense } from "react"
 import FeedAccordion from "@/components/feed-accordion"
 import Footer from "@/components/footer"
 import StructuredData from "@/components/structured-data"
+import type { Metadata } from "next"
+
+// Metadados otimizados para SEO
+export const metadata: Metadata = {
+  title: "Ofício Divino - Liturgia das Horas Online | Liturgia Diária",
+  description:
+    "Acompanhe o Ofício Divino e a Liturgia das Horas diariamente. Orações católicas, leituras espirituais e reflexões para fortalecer sua fé. Acesso gratuito e atualizado diariamente.",
+  keywords:
+    "ofício divino, liturgia das horas, orações católicas, liturgia diária, breviário, laudes, vésperas, completas, terça, sexta, nona, leituras espirituais, oração católica, igreja católica, espiritualidade, vida religiosa",
+  authors: [{ name: "Liturgia Diária", url: "https://liturgiadiaria.top" }],
+  creator: "Liturgia Diária",
+  publisher: "Liturgia Diária",
+  robots: "index, follow",
+  alternates: {
+    canonical: "https://liturgiadiaria.top/oficio",
+  },
+  openGraph: {
+    title: "Ofício Divino - Liturgia das Horas Online",
+    description:
+      "Acompanhe o Ofício Divino e a Liturgia das Horas diariamente. Orações católicas e leituras espirituais para fortalecer sua fé.",
+    type: "website",
+    locale: "pt_BR",
+    url: "https://liturgiadiaria.top/oficio",
+    siteName: "Liturgia Diária",
+    images: [
+      {
+        url: "/liturgia-icon.webp",
+        width: 1200,
+        height: 630,
+        alt: "Ofício Divino - Liturgia das Horas",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ofício Divino - Liturgia das Horas Online",
+    description:
+      "Acompanhe o Ofício Divino e a Liturgia das Horas diariamente. Orações católicas e leituras espirituais.",
+    images: ["/liturgia-icon.webp"],
+    creator: "@liturgiadiaria",
+  },
+  verification: {
+    google: "google-site-verification-code",
+  },
+}
 
 // Define a interface para a estrutura de cada postagem
 interface Post {
@@ -177,7 +222,13 @@ export default async function OficioPage() {
       <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-gray-50">
         <div className="w-full max-w-3xl mx-auto">
           <header className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800">Ofício Divino</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-4">
+              Ofício Divino - Liturgia das Horas
+            </h1>
+            <p className="text-lg text-center text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Acompanhe diariamente as orações do Ofício Divino e da Liturgia das Horas. Fortaleça sua vida espiritual
+              com as orações oficiais da Igreja Católica.
+            </p>
           </header>
 
           {/* Debug Info - Visível apenas em desenvolvimento ou quando há erro */}
@@ -246,24 +297,7 @@ export default async function OficioPage() {
             </div>
           )}
 
-          {/* Status da conexão */}
-          <div className="mb-4 text-center">
-            {error ? (
-              <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-800">
-                ❌ Erro ao carregar feed
-              </div>
-            ) : posts.length > 0 ? (
-              <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                ✅ Feed carregado com sucesso ({posts.length} posts)
-              </div>
-            ) : (
-              <div className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
-                ⏳ Carregando...
-              </div>
-            )}
-          </div>
-
-          <Suspense fallback={<div className="text-center text-gray-600 py-8">Carregando posts...</div>}>
+          <Suspense fallback={<div className="text-center text-gray-600 py-8">Carregando orações...</div>}>
             <FeedAccordion posts={posts} error={error} />
           </Suspense>
         </div>

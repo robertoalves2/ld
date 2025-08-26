@@ -31,7 +31,7 @@ export default function FeedAccordion({ posts, error }: FeedAccordionProps) {
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 19.5c-.77.833.192 2.5 1.732 2.5z"
               />
             </svg>
-            <h3 className="text-lg font-semibold">Erro ao carregar o feed</h3>
+            <h3 className="text-lg font-semibold">Erro ao carregar as orações</h3>
             <p className="text-sm text-gray-600 mt-2">{error}</p>
           </div>
 
@@ -69,7 +69,7 @@ export default function FeedAccordion({ posts, error }: FeedAccordionProps) {
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
-          <p>Nenhum post encontrado no momento.</p>
+          <p>Nenhuma oração encontrada no momento.</p>
           <button onClick={() => window.location.reload()} className="mt-2 text-blue-600 hover:text-blue-800 underline">
             Tentar recarregar
           </button>
@@ -80,11 +80,6 @@ export default function FeedAccordion({ posts, error }: FeedAccordionProps) {
 
   return (
     <div className="w-full space-y-4">
-      {/* Contador de posts */}
-      <div className="text-center text-sm text-gray-600 mb-4">
-        Exibindo {posts.length} {posts.length === 1 ? "post" : "posts"}
-      </div>
-
       <Accordion type="single" collapsible className="w-full bg-white rounded-lg shadow-md overflow-hidden">
         {posts.map((post, index) => {
           const itemValue = `item-${index}`
@@ -104,19 +99,13 @@ export default function FeedAccordion({ posts, error }: FeedAccordionProps) {
               >
                 <div className="flex flex-col items-start flex-grow pr-4">
                   <h2 className="text-lg font-semibold text-gray-900 leading-tight">{post.title}</h2>
-                  <div className="text-sm text-gray-500 mt-1">
-                    {new Date(post.pubDate).toLocaleDateString("pt-BR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="p-6 bg-gray-50 text-gray-700 leading-relaxed">
-                <div className="text-base" dangerouslySetInnerHTML={{ __html: post.content }} />
+                <article
+                  className="text-base prose prose-gray max-w-none"
+                  dangerouslySetInnerHTML={{ __html: post.content }}
+                />
 
                 {/* Debug info para cada post em desenvolvimento */}
                 {process.env.NODE_ENV === "development" && (

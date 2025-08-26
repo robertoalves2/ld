@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+
+# Principais páginas
+Allow: /oficio
+Allow: /lectio
+Allow: /leituras
+
+# Sitemap
+Sitemap: https://liturgiadiaria.top/sitemap.xml
+
+# Bloquear arquivos desnecessários
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /*.json$
+Disallow: /*.xml$ 
+
+# Permitir bots específicos
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Crawl-delay para evitar sobrecarga
+Crawl-delay: 1

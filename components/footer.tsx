@@ -70,7 +70,7 @@ export default function Footer() {
               rel="noopener noreferrer"
             >
               <Image
-                src="/banner-ofertas-exclusivas.webp"
+                src="https://liturgiadiaria.top/banner-ofertas-exclusivas.webp"
                 alt="Confira ofertas exclusivas"
                 width={400}
                 height={200}

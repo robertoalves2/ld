@@ -5,7 +5,7 @@ export default function StructuredData() {
     name: "Ofício Divino",
     description:
       "Acompanhe diariamente o Ofício Divino e a Liturgia das Horas. Orações, leituras e reflexões para sua vida espiritual.",
-    url: "/oficio",
+    url: "/",
     inLanguage: "pt-BR",
     publisher: {
       "@type": "Organization",
@@ -13,7 +13,7 @@ export default function StructuredData() {
     },
     potentialAction: {
       "@type": "ReadAction",
-      target: "/oficio",
+      target: "/",
     },
   }
 

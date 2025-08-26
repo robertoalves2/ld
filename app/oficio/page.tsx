@@ -1,72 +1,7 @@
-"use client"
+import { Suspense } from "react"
 import FeedAccordion from "@/components/feed-accordion"
 import Footer from "@/components/footer"
-import { Suspense } from "react"
 import StructuredData from "@/components/structured-data"
-
-interface OficioData {
-  data: string
-  tempo_liturgico: string
-  cor_liturgica: string
-  laudes: {
-    antifona_inicial: string
-    hino: string
-    salmodia: Array<{
-      salmo: string
-      antifona: string
-      texto: string
-    }>
-    cantico: {
-      titulo: string
-      antifona: string
-      texto: string
-    }
-    leitura_breve: string
-    responsorio: string
-    cantico_zacarias: {
-      antifona: string
-      texto: string
-    }
-    oracao: string
-  }
-  vesperas: {
-    antifona_inicial: string
-    hino: string
-    salmodia: Array<{
-      salmo: string
-      antifona: string
-      texto: string
-    }>
-    cantico: {
-      titulo: string
-      antifona: string
-      texto: string
-    }
-    leitura_breve: string
-    responsorio: string
-    cantico_maria: {
-      antifona: string
-      texto: string
-    }
-    oracao: string
-  }
-  completas: {
-    antifona_inicial: string
-    hino: string
-    salmo: {
-      numero: string
-      antifona: string
-      texto: string
-    }
-    leitura_breve: string
-    responsorio: string
-    cantico_simeao: {
-      antifona: string
-      texto: string
-    }
-    oracao: string
-  }
-}
 
 // Define a interface para a estrutura de cada postagem
 interface Post {

@@ -1,7 +1,6 @@
 import { Suspense } from "react"
 import FeedAccordion from "@/components/feed-accordion"
 import Footer from "@/components/footer"
-import StructuredData from "@/components/structured-data"
 
 // Define a interface para a estrutura de cada postagem
 interface Post {
@@ -87,12 +86,11 @@ async function getFeedData(): Promise<Post[]> {
  * Componente principal da página.
  * Ele busca os dados do feed e os passa para o componente FeedAccordion.
  */
-export default async function OficioPage() {
+export default async function HomePage() {
   const posts = await getFeedData()
 
   return (
     <>
-      <StructuredData />
       <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-gray-50">
         <div className="w-full max-w-3xl mx-auto">
           <header className="mb-8">

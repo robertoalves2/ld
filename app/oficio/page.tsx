@@ -82,11 +82,14 @@ interface Post {
 }
 
 /**
- * Função para buscar os dados do feed RSS via API route.
+ * Função para buscar e analisar os dados do feed RSS.
+ * Esta função é executada no servidor.
  */
 async function getFeedData(): Promise<Post[]> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/oficio-feed`, {
+    // Usa a URL completa para produção
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://liturgiadiaria.top"
+    const response = await fetch(`${baseUrl}/api/oficio-feed`, {
       next: { revalidate: 3600 },
     })
 
@@ -104,6 +107,7 @@ async function getFeedData(): Promise<Post[]> {
 
 /**
  * Componente principal da página.
+ * Ele busca os dados do feed e os passa para o componente FeedAccordion.
  */
 export default async function OficioPage() {
   const [oficioData, setOficioData] = useState<OficioData | null>(null)

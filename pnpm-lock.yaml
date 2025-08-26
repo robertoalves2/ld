@@ -104,9 +104,6 @@ importers:
       '@vercel/speed-insights':
         specifier: latest
         version: 1.2.0(@sveltejs/kit@2.36.2(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.38.3)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(yaml@2.8.0)))(svelte@5.38.3)(vite@7.0.0(@types/node@22.0.0)(jiti@1.21.7)(yaml@2.8.0)))(next@14.2.16(react-dom@18.0.0(react@18.0.0))(react@18.0.0))(react@18.0.0)(svelte@5.38.3)(vue-router@4.5.1(vue@3.5.20(typescript@5.0.2)))(vue@3.5.20(typescript@5.0.2))
-      '@xmldom/xmldom':
-        specifier: latest
-        version: 0.8.11
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.5.0)
@@ -1430,10 +1427,6 @@ packages:
 
   '@web3-storage/multipart-parser@1.0.0':
     resolution: {integrity: sha512-BEO6al7BYqcnfX15W2cnGR+Q566ACXAT9UQykORCWW80lmkpWsnEob6zJS1ZVBKsSJC8+7vJkHwlp+lXG1UCdw==}
-
-  '@xmldom/xmldom@0.8.11':
-    resolution: {integrity: sha512-cQzWCtO6C8TQiYl1ruKNn2U6Ao4o4WBBcbL61yJl84x+j5sOWWFU9X7DpND8XZG3daDppSsigMdfAIl2upQBRw==}
-    engines: {node: '>=10.0.0'}
 
   acorn@8.15.0:
     resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
@@ -3533,8 +3526,6 @@ snapshots:
   '@vue/shared@3.5.20': {}
 
   '@web3-storage/multipart-parser@1.0.0': {}
-
-  '@xmldom/xmldom@0.8.11': {}
 
   acorn@8.15.0: {}
 

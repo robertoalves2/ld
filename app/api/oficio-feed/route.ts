@@ -12,20 +12,19 @@ export async function GET() {
 
     const xmlText = await response.text()
 
-    // Parse XML no servidor
-    const { DOMParser } = await import("@xmldom/xmldom")
+    // Parse XML no servidor usando DOMParser nativo do Next.js
     const parser = new DOMParser()
     const xmlDoc = parser.parseFromString(xmlText, "text/xml")
 
-    const items = xmlDoc.getElementsByTagName("item")
+    const items = xmlDoc.querySelectorAll("item")
     let posts = Array.from(items).map((item) => {
-      const titleElement = item.getElementsByTagName("title")[0]
-      const pubDateElement = item.getElementsByTagName("pubDate")[0]
+      const titleElement = item.querySelector("title")
+      const pubDateElement = item.querySelector("pubDate")
       const contentEncodedElement = item.getElementsByTagNameNS(
         "http://purl.org/rss/1.0/modules/content/",
         "encoded",
       )[0]
-      const descriptionElement = item.getElementsByTagName("description")[0]
+      const descriptionElement = item.querySelector("description")
 
       const title = titleElement?.textContent || "Título Indisponível"
       const pubDate = pubDateElement?.textContent || new Date().toISOString()

@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Clock, Share2, Calendar, BookOpen, Moon, Sunrise, Sunset } from "lucide-react"
+import FeedAccordion from "@/components/feed-accordion"
+import Footer from "@/components/footer"
+import { Suspense } from "react"
 
 interface OficioData {
   data: string
@@ -71,11 +74,73 @@ interface OficioData {
   }
 }
 
-export default function OficioPage() {
+interface Post {
+  title: string
+  pubDate: string
+  content: string
+}
+
+async function getFeedData(): Promise<Post[]> {
+  try {
+    const response = await fetch("https://liturgiadashoras.online/feed/", {
+      next: { revalidate: 3600 },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Erro HTTP! Status: ${response.status}`)
+    }
+
+    const xmlText = await response.text()
+
+    const parser = new DOMParser()
+    const xmlDoc = parser.parseFromString(xmlText, "text/xml")
+
+    const items = xmlDoc.querySelectorAll("item")
+    let posts: Post[] = Array.from(items).map((item) => {
+      const titleElement = item.querySelector("title")
+      const pubDateElement = item.querySelector("pubDate")
+      const contentEncodedElement = item.getElementsByTagNameNS(
+        "http://purl.org/rss/1.0/modules/content/",
+        "encoded",
+      )[0]
+      const descriptionElement = item.querySelector("description")
+
+      const title = titleElement?.textContent || "Título Indisponível"
+      const pubDate = pubDateElement?.textContent || new Date().toISOString()
+      const content = contentEncodedElement?.textContent || descriptionElement?.textContent || "Conteúdo Indisponível"
+
+      return { title, pubDate, content }
+    })
+
+    posts.sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
+
+    const targetTitle = "Ofício das Leituras"
+    let cutoffIndex = -1
+
+    for (let i = 0; i < posts.length; i++) {
+      if (posts[i].title.includes(targetTitle)) {
+        cutoffIndex = i
+        break
+      }
+    }
+
+    if (cutoffIndex !== -1) {
+      posts = posts.slice(0, cutoffIndex + 1)
+    }
+
+    return posts
+  } catch (error) {
+    console.error("Falha ao buscar ou analisar o feed:", error)
+    return []
+  }
+}
+
+export default async function OficioPage() {
   const [oficioData, setOficioData] = useState<OficioData | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedHour, setSelectedHour] = useState<"laudes" | "vesperas" | "completas">("laudes")
   const [currentDate, setCurrentDate] = useState("")
+  const posts = await getFeedData()
 
   useEffect(() => {
     const today = new Date()
@@ -87,7 +152,6 @@ export default function OficioPage() {
     })
     setCurrentDate(formattedDate)
 
-    // Simular dados do Ofício Divino
     const mockData: OficioData = {
       data: formattedDate,
       tempo_liturgico: "Tempo Comum",
@@ -107,7 +171,7 @@ export default function OficioPage() {
           titulo: "Cântico de Daniel 3, 52-57",
           antifona: "Louvai e exaltai o Senhor pelos séculos.",
           texto:
-            "Bendito sois, Senhor, Deus de nossos pais,\nlouvado e exaltado pelos séculos!\nBendito o vosso nome santo e glorioso,\nlouvado e exaltado pelos séculos!",
+            "Bendito sois, Senhor, Deus de Israel,\nlouvado e exaltado pelos séculos!\nBendito o vosso nome santo e glorioso,\nlouvado e exaltado pelos séculos!",
         },
         leitura_breve: "Despertai, vós que dormis, levantai-vos dentre os mortos, e Cristo vos iluminará. (Ef 5, 14)",
         responsorio:
@@ -250,222 +314,223 @@ ${currentHourData.oracao}
     }
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando Ofício Divino...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!oficioData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600">Erro ao carregar o Ofício Divino</p>
-        </div>
-      </div>
-    )
-  }
-
-  const currentHourData = oficioData[selectedHour]
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <BookOpen className="w-8 h-8 text-purple-600" />
-            <h1 className="text-4xl font-bold text-gray-800">Ofício Divino</h1>
-          </div>
-          <p className="text-lg text-gray-600 mb-2">Liturgia das Horas</p>
-          <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
-            <div className="flex items-center gap-1">
-              <Calendar className="w-4 h-4" />
-              <span>{currentDate}</span>
-            </div>
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-              {oficioData.tempo_liturgico}
-            </Badge>
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-              Cor: {oficioData.cor_liturgica}
-            </Badge>
-          </div>
-        </div>
+    <>
+      <main className="flex min-h-screen flex-col items-center p-4 md:p-8 lg:p-12 bg-gray-50">
+        <div className="w-full max-w-3xl mx-auto">
+          <header className="mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800">Ofício Divino</h1>
+          </header>
 
-        {/* Hour Selection */}
-        <div className="flex justify-center mb-8">
-          <div className="flex bg-white rounded-lg shadow-md p-1">
-            {(["laudes", "vesperas", "completas"] as const).map((hour) => (
-              <Button
-                key={hour}
-                variant={selectedHour === hour ? "default" : "ghost"}
-                onClick={() => setSelectedHour(hour)}
-                className={`flex items-center gap-2 px-6 py-2 ${
-                  selectedHour === hour ? "bg-purple-600 text-white" : "text-gray-600 hover:text-purple-600"
-                }`}
-              >
-                {getHourIcon(hour)}
-                {getHourName(hour)}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Share Button */}
-        <div className="flex justify-center mb-8">
-          <Button
-            onClick={compartilhar}
-            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2"
-          >
-            <Share2 className="w-4 h-4" />
-            Compartilhar {getHourName(selectedHour)}
-          </Button>
-        </div>
-
-        {/* Content */}
-        <div className="max-w-4xl mx-auto space-y-6">
-          {/* Antífona Inicial */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-purple-700">Antífona Inicial</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-700 leading-relaxed italic">{currentHourData.antifona_inicial}</p>
-            </CardContent>
-          </Card>
-
-          {/* Hino */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-purple-700">Hino</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <pre className="text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">{currentHourData.hino}</pre>
-            </CardContent>
-          </Card>
-
-          {/* Salmodia */}
-          {selectedHour !== "completas" && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-purple-700">Salmodia</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {currentHourData.salmodia.map((salmo, index) => (
-                  <div key={index}>
-                    <h4 className="font-semibold text-gray-800 mb-2">{salmo.salmo}</h4>
-                    <p className="text-sm text-purple-600 italic mb-2">Ant.: {salmo.antifona}</p>
-                    <pre className="text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">{salmo.texto}</pre>
-                    {index < currentHourData.salmodia.length - 1 && <Separator className="mt-4" />}
+          {loading ? (
+            <div className="text-center text-gray-600 py-8">Carregando Ofício Divino...</div>
+          ) : (
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50">
+              <div className="container mx-auto px-4 py-8">
+                {/* Header */}
+                <div className="text-center mb-8">
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    <BookOpen className="w-8 h-8 text-purple-600" />
+                    <h1 className="text-4xl font-bold text-gray-800">Ofício Divino</h1>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
+                  <p className="text-lg text-gray-600 mb-2">Liturgia das Horas</p>
+                  <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      <span>{currentDate}</span>
+                    </div>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Tempo Comum
+                    </Badge>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Cor: Verde
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Hour Selection */}
+                <div className="flex justify-center mb-8">
+                  <div className="flex bg-white rounded-lg shadow-md p-1">
+                    {(["laudes", "vesperas", "completas"] as const).map((hour) => (
+                      <Button
+                        key={hour}
+                        variant={selectedHour === hour ? "default" : "ghost"}
+                        onClick={() => setSelectedHour(hour)}
+                        className={`flex items-center gap-2 px-6 py-2 ${
+                          selectedHour === hour ? "bg-purple-600 text-white" : "text-gray-600 hover:text-purple-600"
+                        }`}
+                      >
+                        {getHourIcon(hour)}
+                        {getHourName(hour)}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Share Button */}
+                <div className="flex justify-center mb-8">
+                  <Button
+                    onClick={compartilhar}
+                    className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Compartilhar {getHourName(selectedHour)}
+                  </Button>
+                </div>
+
+                {/* Content */}
+                <div className="max-w-4xl mx-auto space-y-6">
+                  {/* Antífona Inicial */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-purple-700">Antífona Inicial</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-700 leading-relaxed italic">
+                        {oficioData[selectedHour].antifona_inicial}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Hino */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-purple-700">Hino</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <pre className="text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">
+                        {oficioData[selectedHour].hino}
+                      </pre>
+                    </CardContent>
+                  </Card>
+
+                  {/* Salmodia */}
+                  {selectedHour !== "completas" && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-purple-700">Salmodia</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {oficioData[selectedHour].salmodia.map((salmo, index) => (
+                          <div key={index}>
+                            <h4 className="font-semibold text-gray-800 mb-2">{salmo.salmo}</h4>
+                            <p className="text-sm text-purple-600 italic mb-2">Ant.: {salmo.antifona}</p>
+                            <pre className="text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">
+                              {salmo.texto}
+                            </pre>
+                            {index < oficioData[selectedHour].salmodia.length - 1 && <Separator className="mt-4" />}
+                          </div>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Salmo (para Completas) */}
+                  {selectedHour === "completas" && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-purple-700">{oficioData[selectedHour].salmo.numero}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-purple-600 italic mb-4">
+                          Ant.: {oficioData[selectedHour].salmo.antifona}
+                        </p>
+                        <pre className="text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">
+                          {oficioData[selectedHour].salmo.texto}
+                        </pre>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Cântico */}
+                  {selectedHour !== "completas" && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-purple-700">{oficioData[selectedHour].cantico.titulo}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-purple-600 italic mb-4">
+                          Ant.: {oficioData[selectedHour].cantico.antifona}
+                        </p>
+                        <pre className="text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">
+                          {oficioData[selectedHour].cantico.texto}
+                        </pre>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Leitura Breve */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-purple-700">Leitura Breve</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-700 leading-relaxed">{oficioData[selectedHour].leitura_breve}</p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Responsório */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-purple-700">Responsório</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <pre className="text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">
+                        {oficioData[selectedHour].responsorio}
+                      </pre>
+                    </CardContent>
+                  </Card>
+
+                  {/* Cântico Evangélico */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-purple-700">
+                        {selectedHour === "laudes" && "Cântico de Zacarias"}
+                        {selectedHour === "vesperas" && "Cântico de Maria"}
+                        {selectedHour === "completas" && "Cântico de Simeão"}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-purple-600 italic mb-4">
+                        Ant.:{" "}
+                        {selectedHour === "laudes"
+                          ? oficioData[selectedHour].cantico_zacarias.antifona
+                          : selectedHour === "vesperas"
+                            ? oficioData[selectedHour].cantico_maria.antifona
+                            : oficioData[selectedHour].cantico_simeao.antifona}
+                      </p>
+                      <pre className="text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">
+                        {selectedHour === "laudes"
+                          ? oficioData[selectedHour].cantico_zacarias.texto
+                          : selectedHour === "vesperas"
+                            ? oficioData[selectedHour].cantico_maria.texto
+                            : oficioData[selectedHour].cantico_simeao.texto}
+                      </pre>
+                    </CardContent>
+                  </Card>
+
+                  {/* Oração */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-purple-700">Oração</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-700 leading-relaxed">{oficioData[selectedHour].oracao}</p>
+                      <p className="text-gray-600 mt-4 text-sm">℟. Amém.</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
           )}
 
-          {/* Salmo (para Completas) */}
-          {selectedHour === "completas" && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-purple-700">{currentHourData.salmo.numero}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-purple-600 italic mb-4">Ant.: {currentHourData.salmo.antifona}</p>
-                <pre className="text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">
-                  {currentHourData.salmo.texto}
-                </pre>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Cântico */}
-          {selectedHour !== "completas" && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-purple-700">{currentHourData.cantico.titulo}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-purple-600 italic mb-4">Ant.: {currentHourData.cantico.antifona}</p>
-                <pre className="text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">
-                  {currentHourData.cantico.texto}
-                </pre>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Leitura Breve */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-purple-700">Leitura Breve</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-700 leading-relaxed">{currentHourData.leitura_breve}</p>
-            </CardContent>
-          </Card>
-
-          {/* Responsório */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-purple-700">Responsório</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <pre className="text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">
-                {currentHourData.responsorio}
-              </pre>
-            </CardContent>
-          </Card>
-
-          {/* Cântico Evangélico */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-purple-700">
-                {selectedHour === "laudes" && "Cântico de Zacarias"}
-                {selectedHour === "vesperas" && "Cântico de Maria"}
-                {selectedHour === "completas" && "Cântico de Simeão"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-purple-600 italic mb-4">
-                Ant.:{" "}
-                {selectedHour === "laudes"
-                  ? currentHourData.cantico_zacarias.antifona
-                  : selectedHour === "vesperas"
-                    ? currentHourData.cantico_maria.antifona
-                    : currentHourData.cantico_simeao.antifona}
-              </p>
-              <pre className="text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">
-                {selectedHour === "laudes"
-                  ? currentHourData.cantico_zacarias.texto
-                  : selectedHour === "vesperas"
-                    ? currentHourData.cantico_maria.texto
-                    : currentHourData.cantico_simeao.texto}
-              </pre>
-            </CardContent>
-          </Card>
-
-          {/* Oração */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-purple-700">Oração</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-700 leading-relaxed">{currentHourData.oracao}</p>
-              <p className="text-gray-600 mt-4 text-sm">℟. Amém.</p>
-            </CardContent>
-          </Card>
+          {/* Suspense é usado para exibir um fallback enquanto o componente cliente é hidratado. */}
+          <Suspense fallback={<div className="text-center text-gray-600 py-8">Carregando posts...</div>}>
+            <FeedAccordion posts={posts} />
+          </Suspense>
         </div>
-
-        {/* Footer */}
-        <div className="text-center mt-12 text-gray-500 text-sm">
-          <p>Liturgia das Horas - Oração da Igreja</p>
-          <p className="mt-2">"Sete vezes ao dia vos louvo" (Sl 118, 164)</p>
-        </div>
-      </div>
-    </div>
+      </main>
+      <Footer />
+    </>
   )
 }

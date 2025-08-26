@@ -74,15 +74,19 @@ interface OficioData {
   }
 }
 
+// Define a interface para a estrutura de cada postagem
 interface Post {
   title: string
   pubDate: string
   content: string
 }
 
+/**
+ * Função para buscar os dados do feed RSS via API route.
+ */
 async function getFeedData(): Promise<Post[]> {
   try {
-    const response = await fetch("https://liturgiadashoras.online/feed/", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/oficio-feed`, {
       next: { revalidate: 3600 },
     })
 
@@ -90,51 +94,17 @@ async function getFeedData(): Promise<Post[]> {
       throw new Error(`Erro HTTP! Status: ${response.status}`)
     }
 
-    const xmlText = await response.text()
-
-    const parser = new DOMParser()
-    const xmlDoc = parser.parseFromString(xmlText, "text/xml")
-
-    const items = xmlDoc.querySelectorAll("item")
-    let posts: Post[] = Array.from(items).map((item) => {
-      const titleElement = item.querySelector("title")
-      const pubDateElement = item.querySelector("pubDate")
-      const contentEncodedElement = item.getElementsByTagNameNS(
-        "http://purl.org/rss/1.0/modules/content/",
-        "encoded",
-      )[0]
-      const descriptionElement = item.querySelector("description")
-
-      const title = titleElement?.textContent || "Título Indisponível"
-      const pubDate = pubDateElement?.textContent || new Date().toISOString()
-      const content = contentEncodedElement?.textContent || descriptionElement?.textContent || "Conteúdo Indisponível"
-
-      return { title, pubDate, content }
-    })
-
-    posts.sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
-
-    const targetTitle = "Ofício das Leituras"
-    let cutoffIndex = -1
-
-    for (let i = 0; i < posts.length; i++) {
-      if (posts[i].title.includes(targetTitle)) {
-        cutoffIndex = i
-        break
-      }
-    }
-
-    if (cutoffIndex !== -1) {
-      posts = posts.slice(0, cutoffIndex + 1)
-    }
-
+    const posts = await response.json()
     return posts
   } catch (error) {
-    console.error("Falha ao buscar ou analisar o feed:", error)
+    console.error("Falha ao buscar o feed:", error)
     return []
   }
 }
 
+/**
+ * Componente principal da página.
+ */
 export default async function OficioPage() {
   const [oficioData, setOficioData] = useState<OficioData | null>(null)
   const [loading, setLoading] = useState(true)

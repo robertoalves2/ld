@@ -1076,7 +1076,7 @@ export default function LiturgiaPage() {
                 )}
 
                 <div className={`mt-3 pt-3 border-t ${isDarkMode ? "border-gray-600" : "border-gray-200"}`}>
-                  <p className="text-xs text-gray-400">© 2025 Liturgia Diária - Todos os direitos reservados</p>
+                  <p className="text-xs text-gray-400">© {new Date().getFullYear()} Liturgia Diária - Todos os direitos reservados</p>
                 </div>
               </div>
             </CardContent>

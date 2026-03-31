@@ -959,20 +959,20 @@ export default function LiturgiaPage() {
                       WhatsApp
                     </a>
                   </Button>
-                  <Button
+                  <!--Button
                     variant="outline"
                     className={`flex items-center gap-2 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white hover:bg-gray-600 hover:text-white" : ""}`}
                     asChild
                   >
-                    <a
+                    <!--a
                       href="https://link.liturgiadiaria.top/telegram-liturgiadiariachatbot"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Send className="h-4 w-4" />
+                      <!--Send className="h-4 w-4" /-->
                       Telegram
                     </a>
-                  </Button>
+                  </Button-->
                   <Button
                     variant="outline"
                     className={`flex items-center gap-2 ${isDarkMode ? "bg-gray-700 border-gray-600 text-white hover:bg-gray-600 hover:text-white" : ""}`}

@@ -167,7 +167,6 @@ export async function GET() {
     <div class="social-links">
       <p>Siga nossas redes sociais:</p>
       <p>
-        <a href="https://link.liturgiadiaria.top/telegram-liturgiadiariachatbot" target="_blank" rel="noopener noreferrer">Telegram</a> |
         <a href="https://link.liturgiadiaria.top/youtube-liturgiadadiaria" target="_blank" rel="noopener noreferrer">YouTube</a> |
         <a href="https://link.liturgiadiaria.top/instagram-liturgiadadiaria" target="_blank" rel="noopener noreferrer">Instagram</a> |
         <a href="https://link.liturgiadiaria.top/whatsapp-canal-liturgia" target="_blank" rel="noopener noreferrer">WhatsApp</a> |
@@ -176,8 +175,8 @@ export async function GET() {
     </div>
 
     <div class="banner-container">
-      <a href="https://link.liturgiadiaria.top/ofertas-exclusivas-tecinova" target="_blank" rel="noopener noreferrer">
-        <img src="https://liturgiadiaria.top/banner-ofertas-exclusivas.webp" alt="Confira ofertas exclusivas" />
+      <a href="https://link.liturgiadiaria.top/cuponsagora-link" target="_blank" rel="noopener noreferrer">
+        <img src="https://app.liturgiadiaria.top/banner-ofertas-exclusivas.webp" alt="Confira cupons de desconto" />
       </a>
     </div>
 

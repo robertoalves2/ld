@@ -1003,14 +1003,14 @@ export default function LiturgiaPage() {
                   {/* Banner publicitário */}
                   <div className="mb-4">
                     <a
-                      href="https://link.liturgiadiaria.top/ofertas-exclusivas-tecinova"
+                      href="https://link.liturgiadiaria.top/cuponsagora-link"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block"
                     >
                       <img
                         src="/banner-ofertas-exclusivas.webp"
-                        alt="Ofertas Exclusivas TecInova - Clique aqui"
+                        alt="Cupons Agora - Clique aqui"
                         className="mx-auto max-w-full h-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
                         style={{ maxWidth: "728px", height: "auto" }}
                       />

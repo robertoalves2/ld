@@ -182,7 +182,7 @@ export async function GET() {
 
     <footer>
       Fonte: aliturgia.com<br>
-      <a href="https://liturgiadiaria.top/" target="_blank" rel="noopener noreferrer">© {new Date().getFullYear()} Liturgia Diária - Todos os direitos reservados</a>
+      <a href="https://liturgiadiaria.top/" target="_blank" rel="noopener noreferrer">© 2026 Liturgia Diária - Todos os direitos reservados</a>
     </footer>
   </main>
 

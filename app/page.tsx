@@ -313,7 +313,7 @@ export default function LiturgiaPage() {
   // Função universal de compartilhamento
   const handleUniversalShare = async () => {
     const content = getCompleteContent()
-    const finalContent = `${content}\n📱 Acesse: www.liturgiadiaria.top`
+    const finalContent = `${content}\n📱 Acesse meditações em:`
 
     // Verificar se o navegador suporta a Web Share API
     if (navigator.share) {

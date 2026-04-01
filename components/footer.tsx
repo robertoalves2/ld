@@ -11,7 +11,6 @@ export default function Footer() {
             <p className="text-gray-700 mb-3">Siga nossas redes sociais:</p>
             <p className="space-x-1">
               
-              <span className="text-gray-600"> | </span>
               <Link
                 href="https://link.liturgiadiaria.top/youtube-liturgiadadiaria"
                 target="_blank"
@@ -57,13 +56,13 @@ export default function Footer() {
           {/* Banner */}
           <div className="banner-container">
             <Link
-              href="https://link.liturgiadiaria.top/ofertas-exclusivas-tecinova"
+              href="https://link.liturgiadiaria.top/cuponsagora-link"
               target="_blank"
               rel="noopener noreferrer"
             >
               <Image
-                src="https://liturgiadiaria.top/banner-ofertas-exclusivas.webp"
-                alt="Confira ofertas exclusivas"
+                src="https://app.liturgiadiaria.top/banner-ofertas-exclusivas.webp"
+                alt="Confira cupons exclusivos"
                 width={400}
                 height={200}
                 className="mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
@@ -73,9 +72,9 @@ export default function Footer() {
 
           {/* Copyright */}
           <div className="space-y-2">
-            <div className="text-gray-600 text-sm">Fonte: liturgiadashoras.online</div>
+            <div className="text-gray-600 text-sm">Fonte: www.liturgiadashoras.online</div>
             <div className="text-sm">
-              <span className="text-gray-600">© 2025 </span>
+              <span className="text-gray-600">© 2026 </span>
               <Link
                 href="https://liturgiadiaria.top/"
                 className="hover:underline transition-colors duration-200"

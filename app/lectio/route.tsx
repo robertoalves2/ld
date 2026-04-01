@@ -181,7 +181,7 @@ export async function GET() {
     </div>
 
     <footer>
-      Fonte: aliturgia.com<br>
+      Fonte: www.aliturgia.com<br>
       <a href="https://liturgiadiaria.top/" target="_blank" rel="noopener noreferrer">© 2026 Liturgia Diária - Todos os direitos reservados</a>
     </footer>
   </main>
@@ -408,7 +408,7 @@ export async function GET() {
 
 ---
 📱 Acesse mais conteúdos em: www.liturgiadiaria.top
-🙏 Compartilhe esta reflexão com outros fiéis!\`;
+🙏 Compartilhe esta reflexão com outros fiéis!;
 
       const fallback = () => {
         navigator.clipboard

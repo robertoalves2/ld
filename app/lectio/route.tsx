@@ -408,7 +408,6 @@ export async function GET() {
 
 ---
 📱 Acesse mais conteúdos em: www.liturgiadiaria.top
-🙏 Compartilhe esta reflexão com outros fiéis!;
 
       const fallback = () => {
         navigator.clipboard

@@ -10,15 +10,7 @@ export default function Footer() {
           <div className="social-links">
             <p className="text-gray-700 mb-3">Siga nossas redes sociais:</p>
             <p className="space-x-1">
-              <Link
-                href="https://link.liturgiadiaria.top/telegram-liturgiadiariachatbot"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline transition-colors duration-200"
-                style={{ color: "#4A126B" }}
-              >
-                Telegram
-              </Link>
+              
               <span className="text-gray-600"> | </span>
               <Link
                 href="https://link.liturgiadiaria.top/youtube-liturgiadadiaria"

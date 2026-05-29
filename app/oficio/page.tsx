@@ -11,12 +11,12 @@ export const metadata: Metadata = {
     "Acompanhe o Ofício Divino e a Liturgia das Horas diariamente. Orações católicas, leituras espirituais e reflexões para fortalecer sua fé. Acesso gratuito e atualizado diariamente.",
   keywords:
     "ofício divino, liturgia das horas, orações católicas, liturgia diária, breviário, laudes, vésperas, completas, terça, sexta, nona, leituras espirituais, oração católica, igreja católica, espiritualidade, vida religiosa",
-  authors: [{ name: "Liturgia Diária", url: "https://liturgiadiaria.top" }],
+  authors: [{ name: "Liturgia Diária", url: "https://liturgiadiaria.net" }],
   creator: "Liturgia Diária",
   publisher: "Liturgia Diária",
   robots: "index, follow",
   alternates: {
-    canonical: "https://liturgiadiaria.top/oficio",
+    canonical: "https://liturgiadiaria.net/oficio",
   },
   openGraph: {
     title: "Ofício Divino - Liturgia das Horas Online",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
       "Acompanhe o Ofício Divino e a Liturgia das Horas diariamente. Orações católicas e leituras espirituais para fortalecer sua fé.",
     type: "website",
     locale: "pt_BR",
-    url: "https://liturgiadiaria.top/oficio",
+    url: "https://liturgiadiaria.net/oficio",
     siteName: "Liturgia Diária",
     images: [
       {

@@ -937,7 +937,7 @@ export default function LiturgiaPage() {
                     asChild
                   >
                     <a
-                      href="https://link.liturgiadiaria.top/facebook-liturgiadadiaria"
+                      href="https://link.liturgiadiaria.net/fbliturgia"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -951,7 +951,7 @@ export default function LiturgiaPage() {
                     asChild
                   >
                     <a
-                      href="https://link.liturgiadiaria.top/whatsapp-canal-liturgia"
+                      href="https://link.liturgiadiaria.net/whatsappliturgia"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -965,7 +965,7 @@ export default function LiturgiaPage() {
                     asChild
                   >
                     <a
-                      href="https://link.liturgiadiaria.top/instagram-liturgiadadiaria"
+                      href="https://link.liturgiadiaria.net/instaliturgia"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -979,7 +979,7 @@ export default function LiturgiaPage() {
                     asChild
                   >
                     <a
-                      href="https://link.liturgiadiaria.top/youtube-liturgiadadiaria"
+                      href="https://link.liturgiadiaria.net/ytliturgia"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -1003,7 +1003,7 @@ export default function LiturgiaPage() {
                   {/* Banner publicitário */}
                   <div className="mb-4">
                     <a
-                      href="https://link.liturgiadiaria.top/cuponsagora-link"
+                      href="https://link.liturgiadiaria.net/cupons"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block"

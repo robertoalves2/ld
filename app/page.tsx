@@ -899,7 +899,7 @@ export default function LiturgiaPage() {
               <Card className={`no-print ${isDarkMode ? "bg-gray-800 border-gray-700" : ""}`}>
                 <CardHeader>
                   <CardTitle className={`text-lg text-center ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                    Evangelize Compartilhando a Palavra de Deus!
+                    Evangelize compartilhando!
                   </CardTitle>
                 </CardHeader>
                 <CardContent className={isDarkMode ? "text-white" : "text-gray-900"}>

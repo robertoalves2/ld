@@ -407,7 +407,7 @@ export async function GET() {
 \${conteudo}
 
 --- 
-📱 Evangelize compartilhando!; \`
+📱 Evangelize compartilhando! \`
 
       const fallback = () => {
         navigator.clipboard

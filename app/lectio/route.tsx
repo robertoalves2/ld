@@ -22,7 +22,7 @@ export async function GET() {
   <style>
     /* Variáveis CSS para cores */
     :root {
-      --primary: #6a1b9a; /* Cor principal do liturgiadiaria.top */
+      --primary: #6a1b9a; /* Cor principal do liturgiadiaria.net */
       --background-light: #f4f4f4;
       --text-dark: #333333;
       --text-light-gray: #888888;
@@ -167,22 +167,22 @@ export async function GET() {
     <div class="social-links">
       <p>Siga nossas redes sociais:</p>
       <p>
-        <a href="https://link.liturgiadiaria.top/youtube-liturgiadadiaria" target="_blank" rel="noopener noreferrer">YouTube</a> |
-        <a href="https://link.liturgiadiaria.top/instagram-liturgiadadiaria" target="_blank" rel="noopener noreferrer">Instagram</a> |
-        <a href="https://link.liturgiadiaria.top/whatsapp-canal-liturgia" target="_blank" rel="noopener noreferrer">WhatsApp</a> |
-        <a href="https://link.liturgiadiaria.top/facebook-liturgiadadiaria" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a href="https://link.liturgiadiaria.net/ytliturgia" target="_blank" rel="noopener noreferrer">YouTube</a> |
+        <a href="https://link.liturgiadiaria.net/instaliturgia" target="_blank" rel="noopener noreferrer">Instagram</a> |
+        <a href="https://link.liturgiadiaria.net/whatsappliturgia" target="_blank" rel="noopener noreferrer">WhatsApp</a> |
+        <a href="https://link.liturgiadiaria.net/fbliturgia" target="_blank" rel="noopener noreferrer">Facebook</a>
       </p>
     </div>
 
     <div class="banner-container">
-      <a href="https://link.liturgiadiaria.top/cuponsagora-link" target="_blank" rel="noopener noreferrer">
-        <img src="https://app.liturgiadiaria.top/banner-ofertas-exclusivas.webp" alt="Confira cupons de desconto" />
+      <a href="https://link.liturgiadiaria.net/cupons" target="_blank" rel="noopener noreferrer">
+        <img src="https://app.liturgiadiaria.net/banner-ofertas-exclusivas.webp" alt="Confira cupons de desconto" />
       </a>
     </div>
 
     <footer>
       Fonte: www.aliturgia.com<br>
-      <a href="https://liturgiadiaria.top/" target="_blank" rel="noopener noreferrer">© 2026 Liturgia Diária - Todos os direitos reservados</a>
+      <a href="https://liturgiadiaria.net/" target="_blank" rel="noopener noreferrer">© 2026 Liturgia Diária - Todos os direitos reservados</a>
     </footer>
   </main>
 
@@ -406,9 +406,8 @@ export async function GET() {
 
 \${conteudo}
 
----
-📱 Acesse mais conteúdos em: www.liturgiadiaria.top
-🙏 Compartilhe esta reflexão com outros fiéis!; \`
+--- 
+📱 Evangelize compartilhando!; \`
 
       const fallback = () => {
         navigator.clipboard

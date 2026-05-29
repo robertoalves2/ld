@@ -14,12 +14,12 @@ export const metadata: Metadata = {
     "Acesse a liturgia católica diária com todas as leituras, evangelho, salmos e orações. Liturgia completa atualizada todos os dias para sua oração e meditação.",
   keywords:
     "liturgia diária, liturgia católica, leituras do dia, evangelho, salmo responsorial, primeira leitura, segunda leitura, oração do dia, antífona, missa, igreja católica, palavra de deus, bíblia, oração, meditação, espiritualidade",
-  authors: [{ name: "Liturgia Diária", url: "https://liturgiadiaria.top" }],
+  authors: [{ name: "Liturgia Diária", url: "https://liturgiadiaria.net" }],
   creator: "Liturgia Diária",
   publisher: "Liturgia Diária",
   robots: "index, follow",
   alternates: {
-    canonical: "https://liturgiadiaria.top",
+    canonical: "https://liturgiadiaria.net",
   },
   openGraph: {
     title: "Liturgia Diária Católica - Leituras e Evangelho do Dia",
@@ -27,14 +27,14 @@ export const metadata: Metadata = {
       "Acesse a liturgia católica diária com todas as leituras, evangelho, salmos e orações. Liturgia completa atualizada todos os dias.",
     type: "website",
     locale: "pt_BR",
-    url: "https://liturgiadiaria.top",
+    url: "https://liturgiadiaria.net",
     siteName: "Liturgia Diária",
     images: [
       {
         url: "/liturgia-icon.webp",
         width: 1200,
         height: 630,
-        alt: "Liturgia Diária Católica",
+        alt: "www.liturgiadiaria.net",
       },
     ],
   },
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     title: "Liturgia Diária Católica - Leituras e Evangelho do Dia",
     description: "Acesse a liturgia católica diária com todas as leituras, evangelho e orações.",
     images: ["/liturgia-icon.webp"],
-    creator: "@liturgiadiaria",
+    creator: "@liturgiadadiaria",
   },
   verification: {
     google: "google-site-verification-code",
@@ -109,19 +109,19 @@ export default function RootLayout({
               "@type": "WebSite",
               name: "Liturgia Diária",
               description: "Liturgia católica diária com leituras, evangelho e orações",
-              url: "https://liturgiadiaria.top",
+              url: "https://liturgiadiaria.net",
               potentialAction: {
                 "@type": "SearchAction",
-                target: "https://liturgiadiaria.top/?date={search_term_string}",
+                target: "https://liturgiadiaria.net/?date={search_term_string}",
                 "query-input": "required name=search_term_string",
               },
               publisher: {
                 "@type": "Organization",
                 name: "Liturgia Diária",
-                url: "https://liturgiadiaria.top",
+                url: "https://liturgiadiaria.net",
                 logo: {
                   "@type": "ImageObject",
-                  url: "https://liturgiadiaria.top/liturgia-icon.webp",
+                  url: "https://liturgiadiaria.net/liturgia-icon.webp",
                 },
               },
               inLanguage: "pt-BR",

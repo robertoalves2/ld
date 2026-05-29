@@ -313,7 +313,7 @@ export default function LiturgiaPage() {
   // Função universal de compartilhamento
   const handleUniversalShare = async () => {
     const content = getCompleteContent()
-    const finalContent = `${content}\n📱 Acesse meditações em:`
+    const finalContent = `${content}\n📱 Evangelize compartilhando!`
 
     // Verificar se o navegador suporta a Web Share API
     if (navigator.share) {
@@ -321,7 +321,7 @@ export default function LiturgiaPage() {
         await navigator.share({
           title: `Liturgia de ${formatDateTitle(selectedDate)}`,
           text: finalContent,
-          url: "https://liturgiadiaria.top",
+          url: "",
         })
       } catch (error) {
         console.log("Compartilhamento cancelado ou erro:", error)

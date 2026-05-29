@@ -12,7 +12,7 @@ export default function Footer() {
             <p className="space-x-1">
               
               <Link
-                href="https://link.liturgiadiaria.top/youtube-liturgiadadiaria"
+                href="https://link.liturgiadiaria.net/ytliturgia"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline transition-colors duration-200"
@@ -22,7 +22,7 @@ export default function Footer() {
               </Link>
               <span className="text-gray-600"> | </span>
               <Link
-                href="https://link.liturgiadiaria.top/instagram-liturgiadadiaria"
+                href="https://link.liturgiadiaria.net/instaliturgia"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline transition-colors duration-200"
@@ -32,7 +32,7 @@ export default function Footer() {
               </Link>
               <span className="text-gray-600"> | </span>
               <Link
-                href="https://link.liturgiadiaria.top/whatsapp-canal-liturgia"
+                href="https://link.liturgiadiaria.net/whatsappliturgia"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline transition-colors duration-200"
@@ -42,7 +42,7 @@ export default function Footer() {
               </Link>
               <span className="text-gray-600"> | </span>
               <Link
-                href="https://link.liturgiadiaria.top/facebook-liturgiadadiaria"
+                href="https://link.liturgiadiaria.net/fbliturgia"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline transition-colors duration-200"
@@ -56,12 +56,12 @@ export default function Footer() {
           {/* Banner */}
           <div className="banner-container">
             <Link
-              href="https://link.liturgiadiaria.top/cuponsagora-link"
+              href="https://link.liturgiadiaria.net/cupons"
               target="_blank"
               rel="noopener noreferrer"
             >
               <Image
-                src="https://app.liturgiadiaria.top/banner-ofertas-exclusivas.webp"
+                src="https://app.liturgiadiaria.net/banner-ofertas-exclusivas.webp"
                 alt="Confira cupons exclusivos"
                 width={400}
                 height={200}
@@ -76,7 +76,7 @@ export default function Footer() {
             <div className="text-sm">
               <span className="text-gray-600">© 2026 </span>
               <Link
-                href="https://liturgiadiaria.top/"
+                href="https://liturgiadiaria.net/"
                 className="hover:underline transition-colors duration-200"
                 style={{ color: "#4A126B" }}
                 target="_blank"
